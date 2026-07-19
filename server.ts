@@ -4,6 +4,7 @@ import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { projectsData } from "./src/data/projects-data";
+import { blogPosts, areaGuides, developerProfiles } from "./src/data/blog-data";
 
 const app = express();
 const PORT = 3000;
@@ -244,6 +245,77 @@ function getGeminiClient() {
 }
 
 // REST API Endpoints
+
+// Serve sitemap.xml explicitly and dynamically if needed
+app.get("/sitemap.xml", (req, res) => {
+  const possiblePaths = [
+    path.join(process.cwd(), "dist", "sitemap.xml"),
+    path.join(process.cwd(), "public", "sitemap.xml"),
+    path.join(process.cwd(), "sitemap.xml")
+  ];
+  
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      res.header("Content-Type", "application/xml");
+      return res.sendFile(p);
+    }
+  }
+
+  // Fallback: Generate sitemap dynamically in real time if file is missing
+  try {
+    const BASE_URL = "https://jbpropertyportal.my";
+    const staticPages = ["", "#projects", "#compare", "#buying-guides", "#blog"];
+    const today = new Date().toISOString().split("T")[0];
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    const addUrl = (route: string, priority: string, freq: string = "weekly") => {
+      const suffix = route.startsWith("#") || route === "" ? route : `#${route}`;
+      const url = `${BASE_URL}/${suffix}`;
+      xml += "  <url>\n";
+      xml += `    <loc>${url}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <changefreq>${freq}</changefreq>\n`;
+      xml += `    <priority>${priority}</priority>\n`;
+      xml += "  </url>\n";
+    };
+
+    staticPages.forEach(p => addUrl(p, p === "" ? "1.0" : "0.8", p === "" ? "daily" : "weekly"));
+    projectsData.forEach((proj: any) => addUrl(`projects/${proj.slug}`, "0.9", "weekly"));
+    blogPosts.forEach((post: any) => addUrl(`blog/${post.slug}`, "0.7", "weekly"));
+    areaGuides.forEach((area: any) => addUrl(`area/${area.slug}`, "0.7", "monthly"));
+    developerProfiles.forEach((dev: any) => addUrl(`developer/${dev.slug}`, "0.6", "monthly"));
+    
+    xml += "</urlset>\n";
+    
+    res.header("Content-Type", "application/xml");
+    return res.send(xml);
+  } catch (genError) {
+    console.error("Error generating dynamic sitemap:", genError);
+    res.status(500).send("Error generating sitemap");
+  }
+});
+
+// Serve robots.txt explicitly
+app.get("/robots.txt", (req, res) => {
+  const possiblePaths = [
+    path.join(process.cwd(), "dist", "robots.txt"),
+    path.join(process.cwd(), "public", "robots.txt"),
+    path.join(process.cwd(), "robots.txt")
+  ];
+  
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      res.header("Content-Type", "text/plain");
+      return res.sendFile(p);
+    }
+  }
+
+  // Fallback robots.txt
+  res.header("Content-Type", "text/plain");
+  res.send("User-agent: *\nAllow: /\n\nSitemap: https://jbpropertyportal.my/sitemap.xml\n");
+});
 
 // 1. Fetch Johor Bahru Projects
 app.get("/api/projects", async (req, res) => {
