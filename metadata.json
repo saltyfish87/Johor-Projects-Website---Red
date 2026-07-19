@@ -1,0 +1,6 @@
+{
+  "name": "Johor Bahru Premium Real Estate Portal",
+  "description": "A luxury portal for premium properties in Johor Bahru with live Google Sheets sync and real estate insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
