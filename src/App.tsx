@@ -295,6 +295,268 @@ export default function App() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
+  // Dynamic SEO & Structured Schema Data (JSON-LD)
+  useEffect(() => {
+    const allProjectNames = projects.map(p => p.project_name).join(", ");
+    let title = "Johor Bahru Property Portal | RTS Link Premium Real Estate";
+    let description = "Discover premium luxury residential properties in Johor Bahru. Synchronized real-time listings, expert analysis for Singapore daily commuters, transit indices, and RTS Link connectivity guide.";
+    let keywords = `Johor Bahru property, JB real estate, RTS Link properties, CIQ Checkpoint JB, Singapore daily commuters, JB property portal, Princess Cove, Coronade Twins, buying property in Malaysia, ${allProjectNames}`;
+    let ogImage = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80";
+    
+    // Breadcrumbs list helper
+    const breadcrumbItems = [
+      { name: "Home", item: "https://jbpropertyportal.my/" }
+    ];
+
+    let customSchema: any = null;
+
+    if (currentView === "home") {
+      title = "Johor Bahru Property Portal | Premium RTS Link Properties";
+      description = "Discover luxury residences in Johor Bahru. Optimized with expert transit indices, RTS Link proximity ratings, and investment analysis for Singapore daily commuters.";
+      keywords = `JB property portal, RTS Link properties, Singapore daily commuters, real estate JB, CIQ Checkpoint, ${allProjectNames}`;
+      
+      customSchema = {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://jbpropertyportal.my/#website",
+            "url": "https://jbpropertyportal.my/",
+            "name": "Johor Bahru Property Portal",
+            "description": "Premium RTS Link properties and expert transit indices for Singapore daily commuters.",
+            "potentialAction": [{
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://jbpropertyportal.my/#projects?search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }]
+          },
+          {
+            "@type": "RealEstateAgent",
+            "@id": "https://jbpropertyportal.my/#agent",
+            "name": "Shyan Yee - Premium Johor Bahru Property Consultant",
+            "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80",
+            "url": "https://jbpropertyportal.my/",
+            "telephone": "+6012-3456789",
+            "email": "shyanyeews@gmail.com",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Johor Bahru Sentral",
+              "addressLocality": "Johor Bahru",
+              "addressRegion": "Johor",
+              "postalCode": "80000",
+              "addressCountry": "MY"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": "1.4619",
+              "longitude": "103.7618"
+            }
+          }
+        ]
+      };
+    } else if (currentView === "projects") {
+      title = "All JB Properties | Johor Bahru Premium Property Portal";
+      description = "Browse and filter Johor Bahru's top luxury residences. Instant comparison, interactive GIS map coordinates, and RTS Link proximity details.";
+      keywords = `JB real estate list, properties in Johor, RTS Link condo, luxury condos JB, ${allProjectNames}`;
+      breadcrumbItems.push({ name: "Properties", item: "https://jbpropertyportal.my/#projects" });
+    } else if (currentView === "project-detail" && activeSlug) {
+      const proj = projects.find(p => p.slug === activeSlug);
+      if (proj) {
+        title = `${proj.project_name} | Premium Johor Bahru Property Portal`;
+        description = `Explore ${proj.project_name} in JB. Features: ${proj.bedrooms} bedrooms, starting from ${proj.price_min}. Direct developer specs and commuter transit insights.`;
+        keywords = `${proj.project_name}, buy ${proj.project_name} JB, ${proj.developer} projects, ${proj.area} property`;
+        
+        const mainImg = proj.image_url || proj.image || proj.img || ogImage;
+        ogImage = mainImg;
+
+        breadcrumbItems.push({ name: "Properties", item: "https://jbpropertyportal.my/#projects" });
+        breadcrumbItems.push({ name: proj.project_name, item: `https://jbpropertyportal.my/#projects/${proj.slug}` });
+
+        let lat = "1.4619";
+        let lng = "103.7618";
+        if (proj.coordinate && proj.coordinate.includes(",")) {
+          const parts = proj.coordinate.split(",");
+          lat = parts[0].trim();
+          lng = parts[1].trim();
+        }
+
+        customSchema = {
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          "name": proj.project_name,
+          "description": description,
+          "url": `https://jbpropertyportal.my/#projects/${proj.slug}`,
+          "image": ogImage,
+          "about": {
+            "@type": "SingleFamilyResidence",
+            "name": proj.project_name,
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": proj.area,
+              "addressRegion": "Johor Bahru, Johor",
+              "addressCountry": "MY"
+            },
+            "numberOfBedrooms": proj.bedrooms,
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": lat,
+              "longitude": lng
+            }
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": proj.price_min,
+            "priceCurrency": "MYR",
+            "url": `https://jbpropertyportal.my/#projects/${proj.slug}`,
+            "availability": "https://schema.org/InStock"
+          }
+        };
+      }
+    } else if (currentView === "compare") {
+      title = "Compare JB Properties side-by-side | Premium Property Portal";
+      description = "Compare Johor Bahru luxury residential properties side-by-side. Analyze pricing, unit layouts, RTS Link transit indexes, and maintenance fees.";
+      keywords = "compare JB properties, RTS Link condo comparison, JB property stats";
+      breadcrumbItems.push({ name: "Compare", item: "https://jbpropertyportal.my/#compare" });
+    } else if (currentView === "area" && activeSlug) {
+      const guide = areaGuides.find(a => a.slug === activeSlug);
+      if (guide) {
+        title = `${guide.name} Property & Transit Guide | Johor Bahru Premium Portal`;
+        description = `Expert real estate guide for ${guide.name}, Johor Bahru. RTS distance: ${guide.rtsDistance}, connectivity score: ${guide.connectivityScore}, average rental yields: ${guide.averageYield}.`;
+        keywords = `${guide.name} JB, real estate in ${guide.name}, ${guide.name} rental yields, RTS Link`;
+        breadcrumbItems.push({ name: "Areas", item: "https://jbpropertyportal.my/#area" });
+        breadcrumbItems.push({ name: guide.name, item: `https://jbpropertyportal.my/#area/${guide.slug}` });
+      }
+    } else if (currentView === "developer" && activeSlug) {
+      const dev = developerProfiles.find(d => d.slug === activeSlug);
+      if (dev) {
+        title = `${dev.name} Developer Profile & Projects | JB Portal`;
+        description = `Discover premium properties built by ${dev.name} in Johor Bahru. Track records, construction quality awards, established in ${dev.established}.`;
+        keywords = `${dev.name}, ${dev.name} track record, JB property developers, luxury builders Malaysia`;
+        breadcrumbItems.push({ name: "Developers", item: "https://jbpropertyportal.my/#developer" });
+        breadcrumbItems.push({ name: dev.name, item: `https://jbpropertyportal.my/#developer/${dev.slug}` });
+      }
+    } else if (currentView === "buying-guides") {
+      title = "Malaysia Property Buying & RTS Commuting Guides";
+      description = "A comprehensive manual on Malaysian real estate guidelines for Singapore daily commuters, foreign ownership thresholds, and RTS Link schedules.";
+      keywords = "buy property in Malaysia as foreigner, RTS Link transit guide, Singapore JB daily commute";
+      breadcrumbItems.push({ name: "Buying Guides", item: "https://jbpropertyportal.my/#buying-guides" });
+    } else if (currentView === "blog") {
+      title = "JB Property Market Insights, News & Blogs";
+      description = "Stay updated with expert analysis, rental yield trends, RTS Link construction milestones, and Johor Bahru property news.";
+      keywords = "JB real estate blog, RTS Link construction progress, JB property news, Johor rental yield";
+      breadcrumbItems.push({ name: "Blog", item: "https://jbpropertyportal.my/#blog" });
+    } else if (currentView === "blog-detail" && activeSlug) {
+      const post = blogPosts.find(b => b.slug === activeSlug);
+      if (post) {
+        title = `${post.title} | JB Property Market Insights`;
+        description = post.summary || `Read expert analysis on: ${post.title}. Johor Bahru property updates, RTS Link guides, and commuter insights.`;
+        keywords = `${post.title}, JB property blog, RTS Link news, Johor Bahru market trends`;
+        if (post.image) ogImage = post.image;
+        breadcrumbItems.push({ name: "Blog", item: "https://jbpropertyportal.my/#blog" });
+        breadcrumbItems.push({ name: post.title, item: `https://jbpropertyportal.my/#blog/${post.slug}` });
+
+        customSchema = {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": post.title,
+          "description": description,
+          "image": ogImage,
+          "datePublished": post.date,
+          "author": {
+            "@type": "Person",
+            "name": "Shyan Yee"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Johor Bahru Property Portal",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&h=200"
+            }
+          }
+        };
+      }
+    } else if (currentView === "admin") {
+      title = "Admin Console | Johor Bahru Premium Property Portal";
+      description = "Review real-time database synchronizations, lead registers, and diagnostic tools for Johor Bahru's luxury property index.";
+    }
+
+    // Apply document updates
+    document.title = title;
+    
+    // Update head elements
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute("content", description);
+    
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) metaKeywords.setAttribute("content", keywords);
+
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute("href", `https://jbpropertyportal.my/${window.location.hash}`);
+    }
+
+    // Open Graph updates
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute("content", title);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute("content", description);
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute("content", `https://jbpropertyportal.my/${window.location.hash}`);
+
+    const ogImgMeta = document.querySelector('meta[property="og:image"]');
+    if (ogImgMeta) ogImgMeta.setAttribute("content", ogImage);
+
+    // Twitter Updates
+    const twTitle = document.querySelector('meta[property="twitter:title"]');
+    if (twTitle) twTitle.setAttribute("content", title);
+
+    const twDesc = document.querySelector('meta[property="twitter:description"]');
+    if (twDesc) twDesc.setAttribute("content", description);
+
+    const twImgMeta = document.querySelector('meta[property="twitter:image"]');
+    if (twImgMeta) twImgMeta.setAttribute("content", ogImage);
+
+    // Update JSON-LD structured script
+    const scriptTag = document.getElementById("seo-json-ld");
+    if (scriptTag) {
+      // Build final Graph
+      const jsonGraph: any[] = [];
+      
+      // Always include Breadcrumbs
+      if (breadcrumbItems.length > 0) {
+        jsonGraph.push({
+          "@type": "BreadcrumbList",
+          "itemListElement": breadcrumbItems.map((item, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "name": item.name,
+            "item": item.item
+          }))
+        });
+      }
+
+      // Add view specific schema
+      if (customSchema) {
+        if (customSchema["@graph"]) {
+          jsonGraph.push(...customSchema["@graph"]);
+        } else {
+          jsonGraph.push(customSchema);
+        }
+      }
+
+      scriptTag.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": jsonGraph
+      }, null, 2);
+    }
+  }, [currentView, activeSlug, projects]);
+
   const navigateTo = (view: string) => {
     window.location.hash = view;
   };
