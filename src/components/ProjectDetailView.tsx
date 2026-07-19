@@ -181,6 +181,9 @@ export default function ProjectDetailView({
     if (!leadName || !leadEmail) return;
 
     setSubmittingLead(true);
+    let success = false;
+
+    // 1. First try to submit to Express backend
     try {
       const res = await fetch("/api/enquiry", {
         method: "POST",
@@ -197,20 +200,62 @@ export default function ProjectDetailView({
         })
       });
 
-      const data = await res.json();
-      if (data.success) {
-        setLeadSuccess(true);
-        setLeadName("");
-        setLeadEmail("");
-        setLeadPhone("");
-        setLeadMessage("");
-        setLeadBudget("");
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success) {
+          success = true;
+        }
       }
     } catch (err) {
-      console.error("Enquiry failed:", err);
-    } finally {
-      setSubmittingLead(false);
+      console.warn("Express backend failed, falling back to direct FormSubmit client-side submit:", err);
     }
+
+    // 2. Fallback to client-side direct submit to FormSubmit.co for serverless platforms like Vercel
+    if (!success) {
+      try {
+        const directRes = await fetch("https://formsubmit.co/ajax/shyanyeews@gmail.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            name: leadName,
+            email: leadEmail,
+            phone: leadPhone,
+            project_name: project.project_name,
+            project_slug: project.slug,
+            budget: leadBudget,
+            buyer_type: "Cross-Border Buyer",
+            message: leadMessage,
+            _subject: `New Lead Registered for ${project.project_name} - ${leadName}`,
+            _template: "table",
+            _captcha: "false"
+          })
+        });
+
+        if (directRes.ok) {
+          const resData = await directRes.json();
+          if (resData.success === "true" || directRes.status === 200) {
+            success = true;
+          }
+        }
+      } catch (fallbackErr) {
+        console.error("Direct client-side FormSubmit fallback failed too:", fallbackErr);
+      }
+    }
+
+    if (success) {
+      setLeadSuccess(true);
+      setLeadName("");
+      setLeadEmail("");
+      setLeadPhone("");
+      setLeadMessage("");
+      setLeadBudget("");
+    } else {
+      alert("Submission failed. Please email shyanyeews@gmail.com directly or check your internet connection.");
+    }
+    setSubmittingLead(false);
   };
 
   // Parse base price
