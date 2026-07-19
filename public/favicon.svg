@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Royal Blue Gradient -->
+    <linearGradient id="blueGrad" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    
+    <!-- Architectural Gold Gradient -->
+    <linearGradient id="goldGrad" x1="12" y1="36" x2="36" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FBBF24" />
+    </linearGradient>
+
+    <!-- Sleek Shadow -->
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1" flood-color="#0F172A" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Background Shield/Hexagon with Soft Borders -->
+  <path d="M24 2L41.32 12V36L24 46L6.68 36V12L24 2Z" fill="#0F172A" />
+  
+  <!-- Subtle inner geometric accent border -->
+  <path d="M24 4.5L39.15 13.25V34.75L24 43.5L8.85 34.75V13.25L24 4.5Z" stroke="#1E293B" stroke-width="1.5" stroke-dasharray="2 2" />
+
+  <!-- The Architectural Tower 1 (Left Tower) -->
+  <path d="M15 16H20V36H15V16Z" fill="url(#blueGrad)" filter="url(#glow)" />
+  <path d="M15 16L17.5 13.5L20 16" stroke="#60A5FA" stroke-width="1" fill="none" />
+
+  <!-- The Architectural Tower 2 (Right Tower - Taller & Prestigious) -->
+  <path d="M22 12H27V36H22V12Z" fill="url(#blueGrad)" filter="url(#glow)" />
+  <path d="M22 12L24.5 9.5L27 12" stroke="#60A5FA" stroke-width="1" fill="none" />
+
+  <!-- The High-Speed RTS Link Transit Bridge (Sleek Golden Wave/Arc) -->
+  <path d="M11 30C18 30 22 18 37 18" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" filter="url(#glow)" />
+  <path d="M11 33C18 33 22 21 37 21" stroke="url(#goldGrad)" stroke-width="1.2" stroke-linecap="round" opacity="0.8" />
+
+  <!-- High-Growth Investment Star (Prestige Sparkle) in Top Right -->
+  <path d="M34 14C34 11 35 10 38 10C35 10 34 9 34 6C34 9 33 10 30 10C33 10 34 11 34 14Z" fill="url(#goldGrad)" />
+</svg>

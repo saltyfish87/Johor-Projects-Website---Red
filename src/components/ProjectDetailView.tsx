@@ -171,6 +171,131 @@ export default function ProjectDetailView({
 
   const [selectedFloorplan, setSelectedFloorplan] = useState<string | null>(null);
 
+  // Helper to extract layout details from layout text or URL
+  const getLayoutMetadata = React.useCallback((imgUrl: string, index: number) => {
+    let fileName = "";
+    try {
+      const hashIndex = imgUrl.indexOf('#');
+      if (hashIndex !== -1) {
+        const hash = imgUrl.substring(hashIndex + 1);
+        const params = new URLSearchParams(hash);
+        const nameParam = params.get('name');
+        if (nameParam) {
+          fileName = decodeURIComponent(nameParam);
+        }
+      }
+    } catch (e) {}
+
+    let cleanFileName = "";
+    if (fileName) {
+      cleanFileName = fileName.replace(/\.[^/.]+$/, "")
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    const parsedLayouts = project.layouts ? project.layouts.split(",").map(item => item.trim()) : [];
+    let matchedLayoutText = "";
+
+    // 1. Try to find a parsed layout item that contains/matches parts of the file name (e.g. "type a")
+    if (cleanFileName) {
+      const cleanFileNameLower = cleanFileName.toLowerCase();
+      // Look for EXACT matches or sub-matches of Type A/B/etc
+      const foundMatch = parsedLayouts.find(pl => {
+        const plLower = pl.toLowerCase();
+        // Look for Type X overlap
+        const typeMatchInPl = plLower.match(/type\s+([a-g\d\-]+)/);
+        const typeMatchInFn = cleanFileNameLower.match(/type\s+([a-g\d\-]+)/);
+        
+        if (typeMatchInPl && typeMatchInFn && typeMatchInPl[1] === typeMatchInFn[1]) {
+          return true;
+        }
+        return plLower.includes(cleanFileNameLower) || cleanFileNameLower.includes(plLower);
+      });
+      if (foundMatch) {
+        matchedLayoutText = foundMatch;
+      }
+    }
+
+    // 2. If no matchedLayoutText yet, try index-based alignment
+    if (!matchedLayoutText && parsedLayouts[index]) {
+      matchedLayoutText = parsedLayouts[index];
+    }
+
+    // 3. Fallback to cleanFileName
+    if (!matchedLayoutText && cleanFileName) {
+      matchedLayoutText = cleanFileName;
+    }
+
+    // 4. Ultimate fallback
+    if (!matchedLayoutText) {
+      matchedLayoutText = `Layout Option ${index + 1}`;
+    }
+
+    // Extract values:
+    // a. Size
+    let size = "";
+    const sizeMatch = matchedLayoutText.match(/(\d+(?:\s*-\s*\d+)?\s*(?:sqft|sq\s*ft|sq\.?\s*ft|sf|sqm|sq\s*m|sq\.\s*meters|square\s*feet))/i);
+    if (sizeMatch) {
+      size = sizeMatch[1];
+    }
+
+    // b. Room / Studio configuration
+    let rooms = "";
+    if (matchedLayoutText.toLowerCase().includes("studio")) {
+      rooms = "Studio";
+    } else {
+      const roomMatch = matchedLayoutText.match(/(\d+(?:\s*\+\s*\d+)?\s*(?:bedroom|bed|room|br|bdr))/i);
+      if (roomMatch) {
+        rooms = roomMatch[1];
+      } else {
+        if (matchedLayoutText.toLowerCase().includes("dual-key") || matchedLayoutText.toLowerCase().includes("dual key")) {
+          rooms = "Dual-Key Suite";
+        } else if (matchedLayoutText.toLowerCase().includes("duplex")) {
+          rooms = "Duplex Suite";
+        } else if (matchedLayoutText.toLowerCase().includes("penthouse")) {
+          rooms = "Penthouse";
+        } else if (matchedLayoutText.toLowerCase().includes("1-bedroom") || matchedLayoutText.toLowerCase().includes("1 bedroom")) {
+          rooms = "1-Bedroom";
+        } else if (matchedLayoutText.toLowerCase().includes("2-bedroom") || matchedLayoutText.toLowerCase().includes("2 bedroom")) {
+          rooms = "2-Bedroom";
+        } else if (matchedLayoutText.toLowerCase().includes("3-bedroom") || matchedLayoutText.toLowerCase().includes("3 bedroom")) {
+          rooms = "3-Bedroom";
+        } else if (matchedLayoutText.toLowerCase().includes("4-bedroom") || matchedLayoutText.toLowerCase().includes("4 bedroom")) {
+          rooms = "4-Bedroom";
+        }
+      }
+    }
+
+    // c. Type Name
+    let type = "";
+    const typeMatch = matchedLayoutText.match(/(type\s+[a-g\d\-]+)/i);
+    if (typeMatch) {
+      type = typeMatch[1].toUpperCase();
+    } else if (matchedLayoutText.toLowerCase().includes("studio")) {
+      type = "Studio Layout";
+    } else {
+      // Find the first capital letters sequence or fallback to something readable
+      const parts = matchedLayoutText.split(/\(|\bsqft\b/i);
+      if (parts[0]) {
+        type = parts[0].trim();
+      } else {
+        type = `Layout ${index + 1}`;
+      }
+    }
+
+    // Ensure spaces and formatting are perfect
+    if (type.toLowerCase() === "studio layout" && rooms.toLowerCase() === "studio") {
+      rooms = "Compact Studio";
+    }
+
+    return {
+      fullName: matchedLayoutText,
+      type: type || `Layout ${index + 1}`,
+      size: size || "Size Pending",
+      rooms: rooms || "Multipurpose Plan"
+    };
+  }, [project.layouts]);
+
   // Synchronize selected floorplan if project or floorplans change
   React.useEffect(() => {
     setSelectedFloorplan(floorplansToUse[0] || null);
@@ -556,61 +681,110 @@ export default function ProjectDetailView({
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
                   
                   {/* Floorplan List/Thumbnails */}
-                  <div className="md:col-span-1 flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:overflow-x-visible pb-2 md:pb-0 max-h-[300px]">
-                    {floorplansToUse.map((imgUrl, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => setSelectedFloorplan(imgUrl)}
-                        className={`p-2 rounded-xl border text-left flex items-center space-x-2 shrink-0 md:shrink transition-all cursor-pointer ${
-                          selectedFloorplan === imgUrl
-                            ? "bg-blue-600 border-blue-600 text-white shadow-sm font-bold"
-                            : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-medium"
-                        }`}
-                      >
-                        <div className="h-10 w-10 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 shrink-0">
-                          <img 
-                            src={imgUrl} 
-                            alt="Thumbnail" 
-                            className="w-full h-full object-cover" 
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=100&q=80";
-                            }}
-                          />
-                        </div>
-                        <span className="text-[11px] font-mono truncate">Layout {index + 1}</span>
-                      </button>
-                    ))}
+                  <div className="md:col-span-1 flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:overflow-x-visible pb-2 md:pb-0 max-h-[350px] pr-1">
+                    {floorplansToUse.map((imgUrl, index) => {
+                      const meta = getLayoutMetadata(imgUrl, index);
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setSelectedFloorplan(imgUrl)}
+                          className={`p-3 rounded-xl border text-left flex items-start space-x-3 shrink-0 md:shrink transition-all duration-200 cursor-pointer ${
+                            selectedFloorplan === imgUrl
+                              ? "bg-slate-900 border-slate-900 text-white shadow-md font-bold scale-[1.01]"
+                              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 font-medium hover:border-slate-300"
+                          }`}
+                        >
+                          <div className="h-11 w-11 bg-slate-100 rounded-lg overflow-hidden border border-slate-200 shrink-0">
+                            <img 
+                              src={imgUrl} 
+                              alt="Thumbnail" 
+                              className="w-full h-full object-cover" 
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=100&q=80";
+                              }}
+                            />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-xs font-semibold tracking-tight truncate">
+                              {meta.type}
+                            </span>
+                            <span className={`text-[10px] truncate mt-0.5 ${selectedFloorplan === imgUrl ? "text-slate-300" : "text-slate-500"}`}>
+                              {meta.rooms}
+                            </span>
+                            <span className={`text-[9px] font-mono mt-0.5 ${selectedFloorplan === imgUrl ? "text-blue-300" : "text-blue-600"}`}>
+                              {meta.size}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
 
                   {/* Selected Floorplan Expanded Viewer */}
-                  <div className="md:col-span-3 bg-white border border-slate-200/60 rounded-xl p-4 flex flex-col items-center justify-center min-h-[300px] relative">
+                  <div className="md:col-span-3 bg-white border border-slate-200/60 rounded-xl p-6 flex flex-col min-h-[350px] relative">
                     {selectedFloorplan ? (
-                      <>
-                        <img 
-                          src={selectedFloorplan} 
-                          alt="Selected floorplan layout" 
-                          className="max-h-[350px] object-contain rounded-lg hover:scale-101 transition-transform duration-300" 
-                          referrerPolicy="no-referrer"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80";
-                          }}
-                        />
-                        <a 
-                          href={selectedFloorplan} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="absolute bottom-4 right-4 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 backdrop-blur-md transition-all cursor-pointer"
-                        >
-                          <span>Open Full Resolution</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </>
+                      (() => {
+                        const activeIndex = floorplansToUse.indexOf(selectedFloorplan);
+                        const activeMeta = getLayoutMetadata(selectedFloorplan, activeIndex !== -1 ? activeIndex : 0);
+                        return (
+                          <div className="flex flex-col h-full w-full justify-between gap-4">
+                            {/* Detailed Info Header */}
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                              <div>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-100 uppercase tracking-wider">
+                                  Selected Floorplan
+                                </span>
+                                <h4 className="text-base font-semibold text-slate-900 mt-1">
+                                  {activeMeta.type} ({activeMeta.rooms})
+                                </h4>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-[10px] text-slate-400 block uppercase tracking-wider">Estimated Area</span>
+                                <span className="text-sm font-semibold text-blue-600 font-mono">
+                                  {activeMeta.size}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Center Floorplan Image */}
+                            <div className="flex-1 flex items-center justify-center py-4 relative">
+                              <img 
+                                src={selectedFloorplan} 
+                                alt={`${project.project_name} - ${activeMeta.type} Floorplan`} 
+                                className="max-h-[300px] md:max-h-[380px] object-contain rounded-lg transition-transform duration-300" 
+                                referrerPolicy="no-referrer"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80";
+                                }}
+                              />
+                            </div>
+
+                            {/* Footer full name & Link */}
+                            <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                              <span className="text-xs text-slate-500 italic max-w-[70%] truncate">
+                                {activeMeta.fullName}
+                              </span>
+                              <a 
+                                href={selectedFloorplan} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-semibold px-3 py-1.5 rounded-lg flex items-center space-x-1 transition-all cursor-pointer shadow-sm"
+                              >
+                                <span>Open Full Resolution</span>
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })()
                     ) : (
-                      <span className="text-slate-500 italic text-xs">Select a floorplan layout to inspect.</span>
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <span className="text-slate-500 italic text-sm">Select a floorplan layout to inspect.</span>
+                      </div>
                     )}
                   </div>
 
