@@ -1,5 +1,6 @@
 import { Project } from "../types";
 import { getAccessToken } from "../firebase-auth";
+import defaultMappings from "../../mapped-images.json";
 
 // Define a map of project slugs to Google Drive folders
 const PROJECT_DRIVE_FOLDERS: Record<string, string> = {
@@ -143,11 +144,21 @@ export async function syncDriveImages(
   const tokenToUse = accessToken || (await getAccessToken());
 
   if (!tokenToUse) {
-    // Attempt local storage load if guest/launch
+    // Attempt local storage load if guest/launch, falling back to static mappings
     try {
+      let mappings: Record<string, any> = {};
       const stored = localStorage.getItem("mapped_drive_images");
       if (stored) {
-        const mappings = JSON.parse(stored);
+        try {
+          mappings = JSON.parse(stored);
+        } catch {
+          mappings = defaultMappings;
+        }
+      } else {
+        mappings = defaultMappings;
+      }
+
+      if (mappings && Object.keys(mappings).length > 0) {
         const merged = projects.map(proj => {
           const mapping = mappings[proj.slug];
           return mapping ? { ...proj, ...mapping } : proj;

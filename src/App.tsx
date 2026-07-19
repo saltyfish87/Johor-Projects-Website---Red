@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Project, Enquiry, BlogPost, AreaGuide, DeveloperProfile } from "./types";
 import { projectsData } from "./data/projects-data";
 import { blogPosts, areaGuides, developerProfiles } from "./data/blog-data";
+import defaultMappings from "../mapped-images.json";
 import { getTranslatedBlog } from "./utils/blog-translator";
 import { getDirectDriveImage, getProjectCoverImage } from "./utils";
 import { syncDriveImages } from "./utils/drive-sync";
@@ -216,7 +217,12 @@ const rates: Record<string, number> = {
 
 export default function App() {
   // Global States
-  const [projects, setProjects] = useState<Project[]>(projectsData);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    return projectsData.map(proj => {
+      const mapping = (defaultMappings as any)[proj.slug];
+      return mapping ? { ...proj, ...mapping } : proj;
+    });
+  });
   const [currentView, setCurrentView] = useState<string>("home");
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   
@@ -324,7 +330,9 @@ export default function App() {
         const tokenToUse = activeToken !== undefined ? activeToken : driveToken;
         await syncDriveImages(fetchedProjects, setProjects, tokenToUse);
       } else {
-        console.error("Error synchronizing project data: All fetch attempts failed.");
+        console.warn("All server fetch attempts failed. Utilizing default initialized project data and running client-side sync.");
+        const tokenToUse = activeToken !== undefined ? activeToken : driveToken;
+        await syncDriveImages(projects, setProjects, tokenToUse);
       }
     } catch (err) {
       console.error("Error synchronizing project data:", err);
