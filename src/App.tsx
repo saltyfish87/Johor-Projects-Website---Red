@@ -312,56 +312,73 @@ export default function App() {
         return;
       }
 
-      // 2. Check hash fragments for backwards compatibility
-      if (hash.startsWith("#projects/")) {
-        setCurrentView("project-detail");
-        setActiveSlug(decodeURIComponent(hash.replace("#projects/", "")));
-        return;
-      }
-      if (hash === "#projects") {
-        setCurrentView("projects");
-        setActiveSlug(null);
-        return;
-      }
-      if (hash === "#compare") {
-        setCurrentView("compare");
-        setActiveSlug(null);
-        return;
-      }
-      if (hash.startsWith("#area/")) {
-        setCurrentView("area");
-        setActiveSlug(decodeURIComponent(hash.replace("#area/", "")));
-        return;
-      }
-      if (hash.startsWith("#developer/")) {
-        setCurrentView("developer");
-        setActiveSlug(decodeURIComponent(hash.replace("#developer/", "")));
-        return;
-      }
-      if (hash.startsWith("#buying-guides/")) {
-        setCurrentView("buying-guides");
-        setActiveSlug(decodeURIComponent(hash.replace("#buying-guides/", "")));
-        return;
-      }
-      if (hash === "#buying-guides") {
-        setCurrentView("buying-guides");
-        setActiveSlug(null);
-        return;
-      }
-      if (hash.startsWith("#blog/")) {
-        setCurrentView("blog-detail");
-        setActiveSlug(decodeURIComponent(hash.replace("#blog/", "")));
-        return;
-      }
-      if (hash === "#blog") {
-        setCurrentView("blog");
-        setActiveSlug(null);
-        return;
-      }
-      if (hash === "#admin") {
-        setCurrentView("admin");
-        setActiveSlug(null);
-        return;
+      // 2. Upgrade legacy hash fragments to clean paths without redirect errors
+      if (hash && hash.startsWith("#")) {
+        let hashRoute = hash.replace("#", "").trim();
+        if (hashRoute === "home" || hashRoute === "") {
+          hashRoute = "/";
+        } else if (!hashRoute.startsWith("/")) {
+          hashRoute = "/" + hashRoute;
+        }
+        if (hashRoute.endsWith("/") && hashRoute.length > 1) {
+          hashRoute = hashRoute.slice(0, -1);
+        }
+        try {
+          window.history.replaceState({}, "", hashRoute);
+        } catch (e) {
+          // ignore
+        }
+
+        if (hashRoute.startsWith("/projects/")) {
+          setCurrentView("project-detail");
+          setActiveSlug(decodeURIComponent(hashRoute.replace("/projects/", "")));
+          return;
+        }
+        if (hashRoute === "/projects") {
+          setCurrentView("projects");
+          setActiveSlug(null);
+          return;
+        }
+        if (hashRoute === "/compare") {
+          setCurrentView("compare");
+          setActiveSlug(null);
+          return;
+        }
+        if (hashRoute.startsWith("/area/")) {
+          setCurrentView("area");
+          setActiveSlug(decodeURIComponent(hashRoute.replace("/area/", "")));
+          return;
+        }
+        if (hashRoute.startsWith("/developer/")) {
+          setCurrentView("developer");
+          setActiveSlug(decodeURIComponent(hashRoute.replace("/developer/", "")));
+          return;
+        }
+        if (hashRoute.startsWith("/buying-guides/")) {
+          setCurrentView("buying-guides");
+          setActiveSlug(decodeURIComponent(hashRoute.replace("/buying-guides/", "")));
+          return;
+        }
+        if (hashRoute === "/buying-guides") {
+          setCurrentView("buying-guides");
+          setActiveSlug(null);
+          return;
+        }
+        if (hashRoute.startsWith("/blog/")) {
+          setCurrentView("blog-detail");
+          setActiveSlug(decodeURIComponent(hashRoute.replace("/blog/", "")));
+          return;
+        }
+        if (hashRoute === "/blog") {
+          setCurrentView("blog");
+          setActiveSlug(null);
+          return;
+        }
+        if (hashRoute === "/admin") {
+          setCurrentView("admin");
+          setActiveSlug(null);
+          return;
+        }
       }
 
       // Default

@@ -527,34 +527,39 @@ async function start() {
 
       try {
         let html = fs.readFileSync(indexPath, 'utf8');
-        const reqPath = req.path;
-        const canonicalUrl = `https://jbpropertyportal.my${reqPath === '/' ? '/' : reqPath}`;
+        const rawReqPath = req.path;
+        let reqPath = rawReqPath;
+        if (reqPath.length > 1 && reqPath.endsWith('/')) {
+          reqPath = reqPath.slice(0, -1);
+        }
+
+        const canonicalUrl = `https://jbpropertyportal.my${reqPath === '' ? '/' : reqPath}`;
 
         let title = "Johor Bahru Property Portal | RTS Link Premium Real Estate";
         let description = "Discover premium luxury residential properties in Johor Bahru. Synchronized real-time listings, expert analysis for Singapore daily commuters, transit indices, and RTS Link connectivity guide.";
 
-        if (reqPath.startsWith('/projects/')) {
+        if (reqPath.startsWith('/projects/') && reqPath.length > 10) {
           const slug = reqPath.replace('/projects/', '');
           const proj = projectsData.find((p: any) => p.slug === slug);
           if (proj) {
             title = `${proj.project_name} | Johor Bahru Property Portal`;
             description = `Explore ${proj.project_name} in ${proj.area}, Johor Bahru. ${proj.key_features}. Prices starting from ${proj.price_min}.`;
           }
-        } else if (reqPath.startsWith('/blog/')) {
+        } else if (reqPath.startsWith('/blog/') && reqPath.length > 6) {
           const slug = reqPath.replace('/blog/', '');
           const post = blogPosts.find((b: any) => b.slug === slug);
           if (post) {
             title = `${post.title} | Johor Bahru Property Portal`;
             description = post.summary || description;
           }
-        } else if (reqPath.startsWith('/area/')) {
+        } else if (reqPath.startsWith('/area/') && reqPath.length > 6) {
           const slug = reqPath.replace('/area/', '');
           const area = areaGuides.find((a: any) => a.slug === slug);
           if (area) {
             title = `${area.name} | Johor Bahru Property Portal`;
             description = area.description || description;
           }
-        } else if (reqPath.startsWith('/developer/')) {
+        } else if (reqPath.startsWith('/developer/') && reqPath.length > 11) {
           const slug = reqPath.replace('/developer/', '');
           const dev = developerProfiles.find((d: any) => d.slug === slug);
           if (dev) {
@@ -567,7 +572,7 @@ async function start() {
         } else if (reqPath === '/compare') {
           title = "Compare Johor Bahru Properties | JB Property Portal";
           description = "Compare price PSF, maintenance fees, layouts, and RTS Link distance side-by-side.";
-        } else if (reqPath === '/buying-guides') {
+        } else if (reqPath === '/buying-guides' || reqPath.startsWith('/buying-guides/')) {
           title = "Malaysia Property Buying Guides for Singaporeans & Foreigners";
           description = "Complete guide on foreign ownership thresholds, MM2H, state consent fees, and RTS commuting.";
         } else if (reqPath === '/blog') {
