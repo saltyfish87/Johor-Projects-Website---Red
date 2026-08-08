@@ -25,6 +25,7 @@ import OSMMap from "./components/OSMMap";
 import AIAssistant from "./components/AIAssistant";
 import ProjectDetailView from "./components/ProjectDetailView";
 import AdminView from "./components/AdminView";
+import { ProjectSkeletonGrid, BlogSkeletonGrid } from "./components/SkeletonLoader";
 import johorBahruHighrise from "./assets/images/johor_bahru_highrise_1783943811292.jpg";
 
 // Custom markdown helper functions for beautiful, tidy and consistent article rendering
@@ -989,18 +990,22 @@ export default function App() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProjects.map((proj) => (
-              <ProjectCard
-                key={proj.slug}
-                project={proj}
-                onViewDetails={(slug) => navigateTo(`projects/${slug}`)}
-                onCompareToggle={handleCompareToggle}
-                isCompared={comparedSlugs.includes(proj.slug)}
-                activeCurrency={currency}
-              />
-            ))}
-          </div>
+          {isLoadingProjects ? (
+            <ProjectSkeletonGrid count={3} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredProjects.map((proj) => (
+                <ProjectCard
+                  key={proj.slug}
+                  project={proj}
+                  onViewDetails={(slug) => navigateTo(`projects/${slug}`)}
+                  onCompareToggle={handleCompareToggle}
+                  isCompared={comparedSlugs.includes(proj.slug)}
+                  activeCurrency={currency}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Specific Client Buying Pathways (Malaysian, Singaporean, Foreigner) */}
@@ -1080,45 +1085,49 @@ export default function App() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {blogPosts.slice(0, 3).map((rawBlog) => {
-              const blog = getTranslatedBlog(rawBlog, language);
-              return (
-                <div 
-                  key={blog.slug} 
-                  onClick={() => navigateTo(`blog/${blog.slug}`)}
-                  className="group cursor-pointer rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all text-left flex flex-col"
-                >
-                  <div className="h-48 overflow-hidden bg-slate-100">
-                    <img 
-                      src={blog.image} 
-                      alt={blog.title} 
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-103" 
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
-                      }}
-                    />
-                  </div>
-                  <div className="p-6 flex-1 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-400">
-                        <span>{blog.category}</span>
-                        <span>{blog.date}</span>
-                      </div>
-                      <h4 className="font-sans font-semibold text-slate-900 group-hover:text-blue-600 transition-colors text-base leading-snug">
-                        {blog.title}
-                      </h4>
-                      <p className="text-slate-500 text-xs leading-relaxed line-clamp-3">
-                        {blog.summary}
-                      </p>
+          {isLoadingProjects ? (
+            <BlogSkeletonGrid count={3} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {blogPosts.slice(0, 3).map((rawBlog) => {
+                const blog = getTranslatedBlog(rawBlog, language);
+                return (
+                  <div 
+                    key={blog.slug} 
+                    onClick={() => navigateTo(`blog/${blog.slug}`)}
+                    className="group cursor-pointer rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all text-left flex flex-col"
+                  >
+                    <div className="h-48 overflow-hidden bg-slate-100">
+                      <img 
+                        src={blog.image} 
+                        alt={blog.title} 
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-103" 
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
+                        }}
+                      />
                     </div>
-                    <span className="text-xs font-bold text-blue-600 group-hover:underline block mt-4">Read Complete Report &rarr;</span>
+                    <div className="p-6 flex-1 flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                          <span>{blog.category}</span>
+                          <span>{blog.date}</span>
+                        </div>
+                        <h4 className="font-sans font-semibold text-slate-900 group-hover:text-blue-600 transition-colors text-base leading-snug">
+                          {blog.title}
+                        </h4>
+                        <p className="text-slate-500 text-xs leading-relaxed line-clamp-3">
+                          {blog.summary}
+                        </p>
+                      </div>
+                      <span className="text-xs font-bold text-blue-600 group-hover:underline block mt-4">Read Complete Report &rarr;</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Interactive Corridor Map Section */}
@@ -1525,7 +1534,9 @@ export default function App() {
         </div>
 
         {/* Results Listings Grid */}
-        {filteredProjects.length === 0 ? (
+        {isLoadingProjects ? (
+          <ProjectSkeletonGrid count={6} />
+        ) : filteredProjects.length === 0 ? (
           <div className="text-center py-20 bg-slate-50 rounded-2xl border border-slate-100">
             <Info className="h-10 w-10 text-slate-400 mx-auto mb-3" />
             <h4 className="font-semibold text-slate-800 text-sm mb-1">No Properties Found</h4>
