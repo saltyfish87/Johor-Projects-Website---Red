@@ -577,12 +577,82 @@ async function start() {
 
         // Replace metadata tags in index.html
         html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);
+        html = html.replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${description}" />`);
         html = html.replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonicalUrl}" />`);
         html = html.replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonicalUrl}" />`);
         html = html.replace(/<meta property="og:title" content=".*?" \/>/, `<meta property="og:title" content="${title}" />`);
         html = html.replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="${description}" />`);
 
+        // Generate pre-rendered JSON-LD schema for Googlebot
+        let jsonLdData: any = {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://jbpropertyportal.my/#website",
+              "url": "https://jbpropertyportal.my/",
+              "name": "Johor Bahru Property Portal",
+              "description": "Premier RTS Link & JB Real Estate Directory",
+              "inLanguage": "en-MY"
+            },
+            {
+              "@type": "RealEstateAgent",
+              "@id": "https://jbpropertyportal.my/#organization",
+              "name": "Johor Bahru Property Portal",
+              "url": "https://jbpropertyportal.my/",
+              "logo": "https://jbpropertyportal.my/favicon.png",
+              "areaServed": "Johor Bahru, Johor, Malaysia"
+            }
+          ]
+        };
+
+        if (reqPath.startsWith('/projects/')) {
+          const slug = reqPath.replace('/projects/', '');
+          const proj = projectsData.find((p: any) => p.slug === slug);
+          if (proj) {
+            const projAny = proj as any;
+            jsonLdData["@graph"].push({
+              "@type": "RealEstateListing",
+              "@id": `${canonicalUrl}#listing`,
+              "url": canonicalUrl,
+              "name": proj.project_name,
+              "description": proj.key_features,
+              "image": projAny.hero_image || projAny.image_url || projAny.gallery_images?.[0] || "https://jbpropertyportal.my/favicon.png",
+              "offers": {
+                "@type": "AggregateOffer",
+                "priceCurrency": "MYR",
+                "lowPrice": proj.price_min ? proj.price_min.replace(/[^0-9.]/g, '') : "0",
+                "priceValidation": "Valid",
+                "offerCount": "1"
+              }
+            });
+          }
+        } else if (reqPath.startsWith('/blog/')) {
+          const slug = reqPath.replace('/blog/', '');
+          const post = blogPosts.find((b: any) => b.slug === slug);
+          if (post) {
+            jsonLdData["@graph"].push({
+              "@type": "BlogPosting",
+              "@id": `${canonicalUrl}#post`,
+              "url": canonicalUrl,
+              "headline": post.title,
+              "description": post.summary,
+              "datePublished": post.date,
+              "author": {
+                "@type": "Organization",
+                "name": "JB Property Portal Editorial Team"
+              }
+            });
+          }
+        }
+
+        html = html.replace(
+          '<script id="seo-json-ld" type="application/ld+json"></script>',
+          `<script id="seo-json-ld" type="application/ld+json">${JSON.stringify(jsonLdData)}</script>`
+        );
+
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('X-Robots-Tag', 'index, follow, max-image-preview:large');
         return res.status(200).send(html);
       } catch (err) {
         return res.sendFile(indexPath);
