@@ -264,15 +264,15 @@ app.get("/sitemap.xml", (req, res) => {
   // Fallback: Generate sitemap dynamically in real time if file is missing
   try {
     const BASE_URL = "https://jbpropertyportal.my";
-    const staticPages = ["", "#projects", "#compare", "#buying-guides", "#blog"];
+    const staticPages = ["", "projects", "compare", "buying-guides", "blog"];
     const today = new Date().toISOString().split("T")[0];
     
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
     
     const addUrl = (route: string, priority: string, freq: string = "weekly") => {
-      const suffix = route.startsWith("#") || route === "" ? route : `#${route}`;
-      const url = `${BASE_URL}/${suffix}`;
+      const cleanRoute = route.startsWith("/") ? route.substring(1) : route;
+      const url = cleanRoute === "" ? BASE_URL : `${BASE_URL}/${cleanRoute}`;
       xml += "  <url>\n";
       xml += `    <loc>${url}</loc>\n`;
       xml += `    <lastmod>${today}</lastmod>\n`;
@@ -507,7 +507,7 @@ User Query: ${prompt}`;
   }
 });
 
-// Serve frontend assets
+// Serve frontend assets with dynamic SEO metadata injection
 async function start() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -517,9 +517,76 @@ async function start() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+    const indexPath = path.join(distPath, 'index.html');
+    
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      if (!fs.existsSync(indexPath)) {
+        return res.sendFile(indexPath);
+      }
+
+      try {
+        let html = fs.readFileSync(indexPath, 'utf8');
+        const reqPath = req.path;
+        const canonicalUrl = `https://jbpropertyportal.my${reqPath === '/' ? '/' : reqPath}`;
+
+        let title = "Johor Bahru Property Portal | RTS Link Premium Real Estate";
+        let description = "Discover premium luxury residential properties in Johor Bahru. Synchronized real-time listings, expert analysis for Singapore daily commuters, transit indices, and RTS Link connectivity guide.";
+
+        if (reqPath.startsWith('/projects/')) {
+          const slug = reqPath.replace('/projects/', '');
+          const proj = projectsData.find((p: any) => p.slug === slug);
+          if (proj) {
+            title = `${proj.project_name} | Johor Bahru Property Portal`;
+            description = `Explore ${proj.project_name} in ${proj.area}, Johor Bahru. ${proj.key_features}. Prices starting from ${proj.price_min}.`;
+          }
+        } else if (reqPath.startsWith('/blog/')) {
+          const slug = reqPath.replace('/blog/', '');
+          const post = blogPosts.find((b: any) => b.slug === slug);
+          if (post) {
+            title = `${post.title} | Johor Bahru Property Portal`;
+            description = post.summary || description;
+          }
+        } else if (reqPath.startsWith('/area/')) {
+          const slug = reqPath.replace('/area/', '');
+          const area = areaGuides.find((a: any) => a.slug === slug);
+          if (area) {
+            title = `${area.name} | Johor Bahru Property Portal`;
+            description = area.description || description;
+          }
+        } else if (reqPath.startsWith('/developer/')) {
+          const slug = reqPath.replace('/developer/', '');
+          const dev = developerProfiles.find((d: any) => d.slug === slug);
+          if (dev) {
+            title = `${dev.name} - Johor Bahru Property Developer Profile`;
+            description = dev.description || description;
+          }
+        } else if (reqPath === '/projects') {
+          title = "All Johor Bahru Properties & New Launches | JB Property Portal";
+          description = "Browse all new launches and high-rise developments in Johor Bahru near RTS Link and CIQ Checkpoint.";
+        } else if (reqPath === '/compare') {
+          title = "Compare Johor Bahru Properties | JB Property Portal";
+          description = "Compare price PSF, maintenance fees, layouts, and RTS Link distance side-by-side.";
+        } else if (reqPath === '/buying-guides') {
+          title = "Malaysia Property Buying Guides for Singaporeans & Foreigners";
+          description = "Complete guide on foreign ownership thresholds, MM2H, state consent fees, and RTS commuting.";
+        } else if (reqPath === '/blog') {
+          title = "Johor Bahru Real Estate Insights & News | JB Property Portal";
+          description = "Latest news and analysis on Johor Bahru property market, RTS Link progress, and JS-SEZ developments.";
+        }
+
+        // Replace metadata tags in index.html
+        html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);
+        html = html.replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonicalUrl}" />`);
+        html = html.replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonicalUrl}" />`);
+        html = html.replace(/<meta property="og:title" content=".*?" \/>/, `<meta property="og:title" content="${title}" />`);
+        html = html.replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="${description}" />`);
+
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.status(200).send(html);
+      } catch (err) {
+        return res.sendFile(indexPath);
+      }
     });
   }
 

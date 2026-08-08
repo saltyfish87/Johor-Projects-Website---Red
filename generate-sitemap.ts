@@ -12,10 +12,10 @@ const BASE_URL = "https://jbpropertyportal.my";
 
 const staticPages = [
   "",
-  "#projects",
-  "#compare",
-  "#buying-guides",
-  "#blog"
+  "projects",
+  "compare",
+  "buying-guides",
+  "blog"
 ];
 
 function generateSitemap() {
@@ -23,10 +23,10 @@ function generateSitemap() {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-  // Helper to add URL
+  // Helper to add URL with clean path names (no hash fragments)
   const addUrl = (route: string, priority: string, freq: string = "weekly") => {
-    const suffix = route.startsWith("#") || route === "" ? route : `#${route}`;
-    const url = `${BASE_URL}/${suffix}`;
+    const cleanRoute = route.startsWith("/") ? route.substring(1) : route;
+    const url = cleanRoute === "" ? BASE_URL : `${BASE_URL}/${cleanRoute}`;
     xml += "  <url>\n";
     xml += `    <loc>${url}</loc>\n`;
     xml += `    <lastmod>${today}</lastmod>\n`;

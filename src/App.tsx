@@ -253,46 +253,129 @@ export default function App() {
   const [showAllFaqs, setShowAllFaqs] = useState(false);
   const [selectedMapProject, setSelectedMapProject] = useState<Project | null>(projectsData[0] || null);
 
-  // Hash Routing Logic
+  // Clean Path & Hash Routing Logic
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash || "#";
-      if (hash === "#" || hash === "#home") {
-        setCurrentView("home");
-        setActiveSlug(null);
-      } else if (hash.startsWith("#projects/")) {
+    const handleRoute = () => {
+      const pathname = window.location.pathname;
+      const hash = window.location.hash || "";
+
+      // 1. Check clean pathnames first
+      if (pathname.startsWith("/projects/")) {
         setCurrentView("project-detail");
-        setActiveSlug(hash.replace("#projects/", ""));
-      } else if (hash === "#projects") {
+        setActiveSlug(decodeURIComponent(pathname.replace("/projects/", "")));
+        return;
+      }
+      if (pathname === "/projects" || pathname === "/projects/") {
         setCurrentView("projects");
         setActiveSlug(null);
-      } else if (hash === "#compare") {
+        return;
+      }
+      if (pathname === "/compare" || pathname === "/compare/") {
         setCurrentView("compare");
         setActiveSlug(null);
-      } else if (hash.startsWith("#area/")) {
+        return;
+      }
+      if (pathname.startsWith("/area/")) {
         setCurrentView("area");
-        setActiveSlug(hash.replace("#area/", ""));
-      } else if (hash.startsWith("#developer/")) {
+        setActiveSlug(decodeURIComponent(pathname.replace("/area/", "")));
+        return;
+      }
+      if (pathname.startsWith("/developer/")) {
         setCurrentView("developer");
-        setActiveSlug(hash.replace("#developer/", ""));
-      } else if (hash.startsWith("#buying-guides/")) {
+        setActiveSlug(decodeURIComponent(pathname.replace("/developer/", "")));
+        return;
+      }
+      if (pathname.startsWith("/buying-guides/")) {
         setCurrentView("buying-guides");
-        setActiveSlug(hash.replace("#buying-guides/", ""));
-      } else if (hash.startsWith("#blog/")) {
+        setActiveSlug(decodeURIComponent(pathname.replace("/buying-guides/", "")));
+        return;
+      }
+      if (pathname === "/buying-guides" || pathname === "/buying-guides/") {
+        setCurrentView("buying-guides");
+        setActiveSlug(null);
+        return;
+      }
+      if (pathname.startsWith("/blog/")) {
         setCurrentView("blog-detail");
-        setActiveSlug(hash.replace("#blog/", ""));
-      } else if (hash === "#blog") {
+        setActiveSlug(decodeURIComponent(pathname.replace("/blog/", "")));
+        return;
+      }
+      if (pathname === "/blog" || pathname === "/blog/") {
         setCurrentView("blog");
         setActiveSlug(null);
-      } else if (hash === "#admin") {
+        return;
+      }
+      if (pathname === "/admin" || pathname === "/admin/") {
         setCurrentView("admin");
         setActiveSlug(null);
+        return;
       }
+
+      // 2. Check hash fragments for backwards compatibility
+      if (hash.startsWith("#projects/")) {
+        setCurrentView("project-detail");
+        setActiveSlug(decodeURIComponent(hash.replace("#projects/", "")));
+        return;
+      }
+      if (hash === "#projects") {
+        setCurrentView("projects");
+        setActiveSlug(null);
+        return;
+      }
+      if (hash === "#compare") {
+        setCurrentView("compare");
+        setActiveSlug(null);
+        return;
+      }
+      if (hash.startsWith("#area/")) {
+        setCurrentView("area");
+        setActiveSlug(decodeURIComponent(hash.replace("#area/", "")));
+        return;
+      }
+      if (hash.startsWith("#developer/")) {
+        setCurrentView("developer");
+        setActiveSlug(decodeURIComponent(hash.replace("#developer/", "")));
+        return;
+      }
+      if (hash.startsWith("#buying-guides/")) {
+        setCurrentView("buying-guides");
+        setActiveSlug(decodeURIComponent(hash.replace("#buying-guides/", "")));
+        return;
+      }
+      if (hash === "#buying-guides") {
+        setCurrentView("buying-guides");
+        setActiveSlug(null);
+        return;
+      }
+      if (hash.startsWith("#blog/")) {
+        setCurrentView("blog-detail");
+        setActiveSlug(decodeURIComponent(hash.replace("#blog/", "")));
+        return;
+      }
+      if (hash === "#blog") {
+        setCurrentView("blog");
+        setActiveSlug(null);
+        return;
+      }
+      if (hash === "#admin") {
+        setCurrentView("admin");
+        setActiveSlug(null);
+        return;
+      }
+
+      // Default
+      setCurrentView("home");
+      setActiveSlug(null);
     };
 
-    window.addEventListener("hashchange", handleHashChange);
-    handleHashChange(); // initial trigger
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handleRoute);
+    window.addEventListener("hashchange", handleRoute);
+    handleRoute(); // initial trigger
+
+    return () => {
+      window.removeEventListener("popstate", handleRoute);
+      window.removeEventListener("hashchange", handleRoute);
+    };
   }, []);
 
   // Dynamic SEO & Structured Schema Data (JSON-LD)
@@ -494,9 +577,20 @@ export default function App() {
     const metaKeywords = document.querySelector('meta[name="keywords"]');
     if (metaKeywords) metaKeywords.setAttribute("content", keywords);
 
+    const pathName = window.location.pathname;
+    const hash = window.location.hash || "";
+    let cleanCanonicalPath = pathName;
+    if (pathName === "/" && hash) {
+      cleanCanonicalPath = "/" + hash.replace("#", "");
+    }
+    if (cleanCanonicalPath.endsWith("/") && cleanCanonicalPath.length > 1) {
+      cleanCanonicalPath = cleanCanonicalPath.slice(0, -1);
+    }
+    const fullCanonicalUrl = `https://jbpropertyportal.my${cleanCanonicalPath}`;
+
     const canonicalLink = document.querySelector('link[rel="canonical"]');
     if (canonicalLink) {
-      canonicalLink.setAttribute("href", `https://jbpropertyportal.my/${window.location.hash}`);
+      canonicalLink.setAttribute("href", fullCanonicalUrl);
     }
 
     // Open Graph updates
@@ -507,7 +601,7 @@ export default function App() {
     if (ogDesc) ogDesc.setAttribute("content", description);
 
     const ogUrl = document.querySelector('meta[property="og:url"]');
-    if (ogUrl) ogUrl.setAttribute("content", `https://jbpropertyportal.my/${window.location.hash}`);
+    if (ogUrl) ogUrl.setAttribute("content", fullCanonicalUrl);
 
     const ogImgMeta = document.querySelector('meta[property="og:image"]');
     if (ogImgMeta) ogImgMeta.setAttribute("content", ogImage);
@@ -558,7 +652,22 @@ export default function App() {
   }, [currentView, activeSlug, projects]);
 
   const navigateTo = (view: string) => {
-    window.location.hash = view;
+    let targetPath = view;
+    if (view === "home" || view === "#home" || view === "#" || view === "/") {
+      targetPath = "/";
+    } else if (view.startsWith("#")) {
+      targetPath = "/" + view.substring(1);
+    } else if (!view.startsWith("/")) {
+      targetPath = "/" + view;
+    }
+
+    try {
+      window.history.pushState({}, "", targetPath);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    } catch (e) {
+      window.location.hash = view;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Fetch dynamic projects from server endpoint with direct Google Drive sync trigger
