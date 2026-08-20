@@ -440,7 +440,7 @@ export default function App() {
             "name": "Shyan Yee - Premium Johor Bahru Property Consultant",
             "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80",
             "url": "https://jbpropertyportal.my/",
-            "telephone": "+6012-3456789",
+            "telephone": "+6010-8278932",
             "email": "shyanyeews@gmail.com",
             "address": {
               "@type": "PostalAddress",
@@ -2548,7 +2548,7 @@ export default function App() {
               <span className="h-2 w-2 rounded-full bg-emerald-400 inline-block animate-pulse mb-1" />
               <h5 className="font-semibold text-xs text-slate-200">Got acquisition questions?</h5>
               <a 
-                href="https://wa.me/60195598932?text=Hi,%20I%20just%20read%20your%20article%20on%20and%20want%20to%20consult%20buying."
+                href="https://wa.me/60108278932?text=Hi,%20I%20just%20read%20your%20article%20on%20and%20want%20to%20consult%20buying."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-2.5 rounded-xl transition-all cursor-pointer"
@@ -2576,7 +2576,7 @@ export default function App() {
               {getTranslation(language, "consultAdvisor")}
             </button>
             <a
-              href="https://wa.me/60195598932?text=Hi,%20I%20want%20a%20personal%20property%20consultation."
+              href="https://wa.me/60108278932?text=Hi,%20I%20want%20a%20personal%20property%20consultation."
               target="_blank"
               rel="noopener noreferrer"
               className="bg-blue-600 hover:bg-blue-700 font-bold text-xs px-6 py-3 rounded-xl transition-all inline-block text-center cursor-pointer"
@@ -2710,7 +2710,7 @@ export default function App() {
         {/* Global Quick Action Bubble Floating WhatsApp */}
         <div className="fixed bottom-6 right-6 z-40 flex flex-col space-y-3">
           <a
-            href="https://wa.me/60195598932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
+            href="https://wa.me/60108278932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
             target="_blank"
             rel="noopener noreferrer"
             className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-blue hover:bg-brand-blue/90 text-white shadow-2xl hover:scale-105 transition-all"

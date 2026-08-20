@@ -116,7 +116,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                 <div>
                   <p className="text-slate-300 font-medium">Gateway Advisory Desk</p>
                   <p className="text-xs text-slate-500">Licensed Property Consultant</p>
-                  <a href="tel:+60195598932" className="hover:text-white transition-all text-xs font-mono block mt-0.5">+60 19-559 8932</a>
+                  <a href="tel:+60108278932" className="hover:text-white transition-all text-xs font-mono block mt-0.5">+60 10-827 8932</a>
                 </div>
               </div>
 

@@ -135,7 +135,7 @@ export default function Navbar({
 
           {/* Contact CTA */}
           <a
-            href="https://wa.me/60195598932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
+            href="https://wa.me/60108278932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 bg-brand-blue hover:bg-brand-blue/90 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-lg shadow-blue-500/15 hover:shadow-xl transition-all"
@@ -249,7 +249,7 @@ export default function Navbar({
             </div>
 
             <a
-              href="https://wa.me/60195598932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
+              href="https://wa.me/60108278932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center space-x-2 bg-brand-blue text-white font-semibold py-3 rounded-xl shadow-sm text-sm"

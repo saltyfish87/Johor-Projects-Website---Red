@@ -1001,7 +1001,7 @@ export default function ProjectDetailView({
             </button>
 
             <a
-              href="https://wa.me/60195598932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
+              href="https://wa.me/60108278932?text=Hi,%20I%20would%20like%20to%20know%20more%20about%20this%20Johor%20Bahru%20property%20project."
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-3.5 rounded-xl text-center block transition-all shadow-sm"
