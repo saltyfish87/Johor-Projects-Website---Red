@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jbpropertyportal.my/sitemap.xml
+Sitemap: https://www.jbpropertyportal.my/sitemap.xml
