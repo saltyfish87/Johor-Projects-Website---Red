@@ -77,6 +77,15 @@ export default function Footer({ onNavigate }: FooterProps) {
                   Transit-Oriented Overviews
                 </button>
               </li>
+              <li className="pt-2 border-t border-slate-800">
+                <a href="https://www.jbproperties.my/" className="hover:text-white transition-colors">Official listings: jbproperties.my</a>
+              </li>
+              <li>
+                <a href="https://www.jbproperties.my/zh" className="hover:text-white transition-colors">中文楼盘网 · jbproperties.my/zh</a>
+              </li>
+              <li>
+                <a href="https://www.jbproperties.my/ms" className="hover:text-white transition-colors">Senarai projek (Bahasa) · jbproperties.my/ms</a>
+              </li>
             </ul>
           </div>
 
@@ -85,23 +94,23 @@ export default function Footer({ onNavigate }: FooterProps) {
             <h4 className="text-white font-medium text-sm tracking-wider uppercase">High-Growth Hubs</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <button onClick={() => onNavigate("area/ibrahim-international-business-district-iibd")} className="hover:text-white transition-colors text-left">
+                <button onClick={() => onNavigate("area/johor-bahru")} className="hover:text-white transition-colors text-left">
                   IIBD Financial District
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("area/jbcc-ciq-lumba-kuda")} className="hover:text-white transition-colors text-left">
-                  RTS Bukit Chagar Terminus
+                <button onClick={() => onNavigate("area/ciq")} className="hover:text-white transition-colors text-left">
+                  JBCC CIQ / Lumba Kuda
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("area/tanjung-puteri-waterfront")} className="hover:text-white transition-colors text-left">
-                  Tanjung Puteri Marina
+                <button onClick={() => onNavigate("area/bukit-chagar")} className="hover:text-white transition-colors text-left">
+                  Bukit Chagar RTS Corridor
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("area/taman-pelangi-sri-tebrau")} className="hover:text-white transition-colors text-left">
-                  Taman Pelangi & Sri Tebrau
+                <button onClick={() => onNavigate("area/rts")} className="hover:text-white transition-colors text-left">
+                  RTS Link Corridor Guide
                 </button>
               </li>
             </ul>

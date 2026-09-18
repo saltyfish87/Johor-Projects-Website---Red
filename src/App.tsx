@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 import { Project, Enquiry, BlogPost, AreaGuide, DeveloperProfile } from "./types";
+import RelatedProjectsBox from "./components/RelatedProjectsBox";
 import { HOME_SEO, STATIC_SEO, blogSeo, areaSeo, developerSeo, greenProjectUrl } from "./utils/seo-texts";
 import { projectsData } from "./data/projects-data";
 import { blogPosts, areaGuides, developerProfiles } from "./data/blog-data";
@@ -1968,6 +1969,7 @@ export default function App() {
             ))}
           </div>
         </div>
+        <RelatedProjectsBox projects={projects} title={`Official listings for projects near ${guide.name}`} />
       </div>
     );
   };
@@ -2044,6 +2046,7 @@ export default function App() {
             ))}
           </div>
         </div>
+        <RelatedProjectsBox projects={projects.filter((p) => p.developer.toLowerCase().includes(profile.name.toLowerCase().split(" ")[0]))} title={`${profile.name} projects — official listings on jbproperties.my`} />
       </div>
     );
   };
@@ -2512,6 +2515,7 @@ export default function App() {
           {/* Main content body (8 cols) */}
           <div className="lg:col-span-9 max-w-none text-slate-700">
             {renderMarkdownContent(blog.content)}
+            <RelatedProjectsBox projects={projects} title="Projects mentioned in our guides — official listings on jbproperties.my" />
           </div>
 
           {/* Sticky social share and quick metrics (3 cols) */}
