@@ -263,7 +263,7 @@ app.get("/sitemap.xml", (req, res) => {
 
   // Fallback: Generate sitemap dynamically in real time if file is missing
   try {
-    const BASE_URL = "https://jbpropertyportal.my";
+    const BASE_URL = "https://www.jbpropertyportal.my";
     const staticPages = ["", "projects", "compare", "buying-guides", "blog"];
     const today = new Date().toISOString().split("T")[0];
     
@@ -314,7 +314,7 @@ app.get("/robots.txt", (req, res) => {
 
   // Fallback robots.txt
   res.header("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\n\nSitemap: https://jbpropertyportal.my/sitemap.xml\n");
+  res.send("User-agent: *\nAllow: /\n\nSitemap: https://www.jbpropertyportal.my/sitemap.xml\n");
 });
 
 // 1. Fetch Johor Bahru Projects
@@ -533,7 +533,7 @@ async function start() {
           reqPath = reqPath.slice(0, -1);
         }
 
-        const canonicalUrl = `https://jbpropertyportal.my${reqPath === '' ? '/' : reqPath}`;
+        const canonicalUrl = `https://www.jbpropertyportal.my${reqPath === '' ? '/' : reqPath}`;
 
         let title = "Johor Bahru Property Portal | RTS Link Premium Real Estate";
         let description = "Discover premium luxury residential properties in Johor Bahru. Synchronized real-time listings, expert analysis for Singapore daily commuters, transit indices, and RTS Link connectivity guide.";
@@ -594,18 +594,18 @@ async function start() {
           "@graph": [
             {
               "@type": "WebSite",
-              "@id": "https://jbpropertyportal.my/#website",
-              "url": "https://jbpropertyportal.my/",
+              "@id": "https://www.jbpropertyportal.my/#website",
+              "url": "https://www.jbpropertyportal.my/",
               "name": "Johor Bahru Property Portal",
               "description": "Premier RTS Link & JB Real Estate Directory",
               "inLanguage": "en-MY"
             },
             {
               "@type": "RealEstateAgent",
-              "@id": "https://jbpropertyportal.my/#organization",
+              "@id": "https://www.jbpropertyportal.my/#organization",
               "name": "Johor Bahru Property Portal",
-              "url": "https://jbpropertyportal.my/",
-              "logo": "https://jbpropertyportal.my/favicon.png",
+              "url": "https://www.jbpropertyportal.my/",
+              "logo": "https://www.jbpropertyportal.my/favicon.png",
               "areaServed": "Johor Bahru, Johor, Malaysia"
             }
           ]
@@ -622,7 +622,7 @@ async function start() {
               "url": canonicalUrl,
               "name": proj.project_name,
               "description": proj.key_features,
-              "image": projAny.hero_image || projAny.image_url || projAny.gallery_images?.[0] || "https://jbpropertyportal.my/favicon.png",
+              "image": projAny.hero_image || projAny.image_url || projAny.gallery_images?.[0] || "https://www.jbpropertyportal.my/favicon.png",
               "offers": {
                 "@type": "AggregateOffer",
                 "priceCurrency": "MYR",

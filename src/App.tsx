@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 
 import { Project, Enquiry, BlogPost, AreaGuide, DeveloperProfile } from "./types";
+import { HOME_SEO, STATIC_SEO, blogSeo, areaSeo, developerSeo, greenProjectUrl } from "./utils/seo-texts";
 import { projectsData } from "./data/projects-data";
 import { blogPosts, areaGuides, developerProfiles } from "./data/blog-data";
 import defaultMappings from "../mapped-images.json";
@@ -257,7 +258,8 @@ export default function App() {
   // Clean Path & Hash Routing Logic
   useEffect(() => {
     const handleRoute = () => {
-      const pathname = window.location.pathname;
+      // Ignore a trailing slash so /projects/abc/ and /projects/abc resolve the same page
+      const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
       const hash = window.location.hash || "";
 
       // 1. Check clean pathnames first
@@ -406,40 +408,40 @@ export default function App() {
     
     // Breadcrumbs list helper
     const breadcrumbItems = [
-      { name: "Home", item: "https://jbpropertyportal.my/" }
+      { name: "Home", item: "https://www.jbpropertyportal.my/" }
     ];
 
     let customSchema: any = null;
 
     if (currentView === "home") {
-      title = "Johor Bahru Property Portal | Premium RTS Link Properties";
-      description = "Discover luxury residences in Johor Bahru. Optimized with expert transit indices, RTS Link proximity ratings, and investment analysis for Singapore daily commuters.";
-      keywords = `JB property portal, RTS Link properties, Singapore daily commuters, real estate JB, CIQ Checkpoint, ${allProjectNames}`;
+      title = HOME_SEO.title;
+      description = HOME_SEO.description;
+      keywords = `${HOME_SEO.keywords}, ${allProjectNames}`;
       
       customSchema = {
         "@context": "https://schema.org",
         "@graph": [
           {
             "@type": "WebSite",
-            "@id": "https://jbpropertyportal.my/#website",
-            "url": "https://jbpropertyportal.my/",
+            "@id": "https://www.jbpropertyportal.my/#website",
+            "url": "https://www.jbpropertyportal.my/",
             "name": "Johor Bahru Property Portal",
             "description": "Premium RTS Link properties and expert transit indices for Singapore daily commuters.",
             "potentialAction": [{
               "@type": "SearchAction",
               "target": {
                 "@type": "EntryPoint",
-                "urlTemplate": "https://jbpropertyportal.my/#projects?search={search_term_string}"
+                "urlTemplate": "https://www.jbpropertyportal.my/#projects?search={search_term_string}"
               },
               "query-input": "required name=search_term_string"
             }]
           },
           {
             "@type": "RealEstateAgent",
-            "@id": "https://jbpropertyportal.my/#agent",
+            "@id": "https://www.jbpropertyportal.my/#agent",
             "name": "Shyan Yee - Premium Johor Bahru Property Consultant",
             "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80",
-            "url": "https://jbpropertyportal.my/",
+            "url": "https://www.jbpropertyportal.my/",
             "telephone": "+6010-8278932",
             "email": "shyanyeews@gmail.com",
             "address": {
@@ -459,22 +461,22 @@ export default function App() {
         ]
       };
     } else if (currentView === "projects") {
-      title = "All JB Properties | Johor Bahru Premium Property Portal";
-      description = "Browse and filter Johor Bahru's top luxury residences. Instant comparison, interactive GIS map coordinates, and RTS Link proximity details.";
+      title = STATIC_SEO.projects.title;
+      description = STATIC_SEO.projects.description;
       keywords = `JB real estate list, properties in Johor, RTS Link condo, luxury condos JB, ${allProjectNames}`;
-      breadcrumbItems.push({ name: "Properties", item: "https://jbpropertyportal.my/#projects" });
+      breadcrumbItems.push({ name: "Properties", item: "https://www.jbpropertyportal.my/#projects" });
     } else if (currentView === "project-detail" && activeSlug) {
       const proj = projects.find(p => p.slug === activeSlug);
       if (proj) {
-        title = `${proj.project_name} | Premium Johor Bahru Property Portal`;
+        title = proj.seo_title || `${proj.project_name} Johor Bahru`;
         description = `Explore ${proj.project_name} in JB. Features: ${proj.bedrooms} bedrooms, starting from ${proj.price_min}. Direct developer specs and commuter transit insights.`;
         keywords = `${proj.project_name}, buy ${proj.project_name} JB, ${proj.developer} projects, ${proj.area} property`;
         
         const mainImg = proj.image_url || proj.image || proj.img || ogImage;
         ogImage = mainImg;
 
-        breadcrumbItems.push({ name: "Properties", item: "https://jbpropertyportal.my/#projects" });
-        breadcrumbItems.push({ name: proj.project_name, item: `https://jbpropertyportal.my/#projects/${proj.slug}` });
+        breadcrumbItems.push({ name: "Properties", item: "https://www.jbpropertyportal.my/#projects" });
+        breadcrumbItems.push({ name: proj.project_name, item: `https://www.jbpropertyportal.my/#projects/${proj.slug}` });
 
         let lat = "1.4619";
         let lng = "103.7618";
@@ -489,7 +491,7 @@ export default function App() {
           "@type": "RealEstateListing",
           "name": proj.project_name,
           "description": description,
-          "url": `https://jbpropertyportal.my/#projects/${proj.slug}`,
+          "url": `https://www.jbpropertyportal.my/#projects/${proj.slug}`,
           "image": ogImage,
           "about": {
             "@type": "SingleFamilyResidence",
@@ -511,53 +513,53 @@ export default function App() {
             "@type": "Offer",
             "price": proj.price_min,
             "priceCurrency": "MYR",
-            "url": `https://jbpropertyportal.my/#projects/${proj.slug}`,
+            "url": `https://www.jbpropertyportal.my/#projects/${proj.slug}`,
             "availability": "https://schema.org/InStock"
           }
         };
       }
     } else if (currentView === "compare") {
-      title = "Compare JB Properties side-by-side | Premium Property Portal";
-      description = "Compare Johor Bahru luxury residential properties side-by-side. Analyze pricing, unit layouts, RTS Link transit indexes, and maintenance fees.";
+      title = STATIC_SEO.compare.title;
+      description = STATIC_SEO.compare.description;
       keywords = "compare JB properties, RTS Link condo comparison, JB property stats";
-      breadcrumbItems.push({ name: "Compare", item: "https://jbpropertyportal.my/#compare" });
+      breadcrumbItems.push({ name: "Compare", item: "https://www.jbpropertyportal.my/#compare" });
     } else if (currentView === "area" && activeSlug) {
       const guide = areaGuides.find(a => a.slug === activeSlug);
       if (guide) {
-        title = `${guide.name} Property & Transit Guide | Johor Bahru Premium Portal`;
-        description = `Expert real estate guide for ${guide.name}, Johor Bahru. RTS distance: ${guide.rtsDistance}, connectivity score: ${guide.connectivityScore}, average rental yields: ${guide.averageYield}.`;
+        title = areaSeo(guide).title;
+        description = areaSeo(guide).description;
         keywords = `${guide.name} JB, real estate in ${guide.name}, ${guide.name} rental yields, RTS Link`;
-        breadcrumbItems.push({ name: "Areas", item: "https://jbpropertyportal.my/#area" });
-        breadcrumbItems.push({ name: guide.name, item: `https://jbpropertyportal.my/#area/${guide.slug}` });
+        breadcrumbItems.push({ name: "Areas", item: "https://www.jbpropertyportal.my/#area" });
+        breadcrumbItems.push({ name: guide.name, item: `https://www.jbpropertyportal.my/#area/${guide.slug}` });
       }
     } else if (currentView === "developer" && activeSlug) {
       const dev = developerProfiles.find(d => d.slug === activeSlug);
       if (dev) {
-        title = `${dev.name} Developer Profile & Projects | JB Portal`;
-        description = `Discover premium properties built by ${dev.name} in Johor Bahru. Track records, construction quality awards, established in ${dev.established}.`;
+        title = developerSeo(dev).title;
+        description = developerSeo(dev).description;
         keywords = `${dev.name}, ${dev.name} track record, JB property developers, luxury builders Malaysia`;
-        breadcrumbItems.push({ name: "Developers", item: "https://jbpropertyportal.my/#developer" });
-        breadcrumbItems.push({ name: dev.name, item: `https://jbpropertyportal.my/#developer/${dev.slug}` });
+        breadcrumbItems.push({ name: "Developers", item: "https://www.jbpropertyportal.my/#developer" });
+        breadcrumbItems.push({ name: dev.name, item: `https://www.jbpropertyportal.my/#developer/${dev.slug}` });
       }
     } else if (currentView === "buying-guides") {
-      title = "Malaysia Property Buying & RTS Commuting Guides";
-      description = "A comprehensive manual on Malaysian real estate guidelines for Singapore daily commuters, foreign ownership thresholds, and RTS Link schedules.";
+      title = STATIC_SEO["buying-guides"].title;
+      description = STATIC_SEO["buying-guides"].description;
       keywords = "buy property in Malaysia as foreigner, RTS Link transit guide, Singapore JB daily commute";
-      breadcrumbItems.push({ name: "Buying Guides", item: "https://jbpropertyportal.my/#buying-guides" });
+      breadcrumbItems.push({ name: "Buying Guides", item: "https://www.jbpropertyportal.my/#buying-guides" });
     } else if (currentView === "blog") {
-      title = "JB Property Market Insights, News & Blogs";
-      description = "Stay updated with expert analysis, rental yield trends, RTS Link construction milestones, and Johor Bahru property news.";
+      title = STATIC_SEO.blog.title;
+      description = STATIC_SEO.blog.description;
       keywords = "JB real estate blog, RTS Link construction progress, JB property news, Johor rental yield";
-      breadcrumbItems.push({ name: "Blog", item: "https://jbpropertyportal.my/#blog" });
+      breadcrumbItems.push({ name: "Blog", item: "https://www.jbpropertyportal.my/#blog" });
     } else if (currentView === "blog-detail" && activeSlug) {
       const post = blogPosts.find(b => b.slug === activeSlug);
       if (post) {
-        title = `${post.title} | JB Property Market Insights`;
-        description = post.summary || `Read expert analysis on: ${post.title}. Johor Bahru property updates, RTS Link guides, and commuter insights.`;
+        title = blogSeo(post).title;
+        description = blogSeo(post).description;
         keywords = `${post.title}, JB property blog, RTS Link news, Johor Bahru market trends`;
         if (post.image) ogImage = post.image;
-        breadcrumbItems.push({ name: "Blog", item: "https://jbpropertyportal.my/#blog" });
-        breadcrumbItems.push({ name: post.title, item: `https://jbpropertyportal.my/#blog/${post.slug}` });
+        breadcrumbItems.push({ name: "Blog", item: "https://www.jbpropertyportal.my/#blog" });
+        breadcrumbItems.push({ name: post.title, item: `https://www.jbpropertyportal.my/#blog/${post.slug}` });
 
         customSchema = {
           "@context": "https://schema.org",
@@ -604,7 +606,9 @@ export default function App() {
     if (cleanCanonicalPath.endsWith("/") && cleanCanonicalPath.length > 1) {
       cleanCanonicalPath = cleanCanonicalPath.slice(0, -1);
     }
-    const fullCanonicalUrl = `https://jbpropertyportal.my${cleanCanonicalPath}`;
+    // Project pages: the official listing lives on jbproperties.my, so point the canonical there
+    const activeProject = currentView === "project-detail" && activeSlug ? projects.find(p => p.slug === activeSlug) : undefined;
+    const fullCanonicalUrl = activeProject ? greenProjectUrl(activeProject.slug) : `https://www.jbpropertyportal.my${cleanCanonicalPath}`;
 
     const canonicalLink = document.querySelector('link[rel="canonical"]');
     if (canonicalLink) {

@@ -8,7 +8,8 @@ import { blogPosts, areaGuides, developerProfiles } from "./src/data/blog-data.j
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const BASE_URL = "https://jbpropertyportal.my";
+const BASE_URL = "https://www.jbpropertyportal.my";
+const GREEN_URL = "https://www.jbproperties.my";
 
 const staticPages = [
   "",
@@ -41,10 +42,7 @@ function generateSitemap() {
     addUrl(p, priority, p === "" ? "daily" : "weekly");
   });
 
-  // 2. Project Details
-  projectsData.forEach(proj => {
-    addUrl(`projects/${proj.slug}`, "0.9", "weekly");
-  });
+  // 2. Project pages are NOT listed: their canonical points to the official listing on jbproperties.my
 
   // 3. Blog Posts
   blogPosts.forEach(post => {
@@ -72,7 +70,7 @@ function generateSitemap() {
   // Write sitemap.xml to public folder
   const sitemapPath = path.join(publicDir, "sitemap.xml");
   fs.writeFileSync(sitemapPath, xml, "utf8");
-  console.log(`[Sitemap Generator] Successfully generated public/sitemap.xml with ${projectsData.length + blogPosts.length + areaGuides.length + developerProfiles.length + staticPages.length} entries.`);
+  console.log(`[Sitemap Generator] Successfully generated public/sitemap.xml with ${blogPosts.length + areaGuides.length + developerProfiles.length + staticPages.length} entries.`);
 
   // Write sitemap.xml to dist folder if it exists
   const distDir = path.join(__dirname, "dist");
@@ -91,6 +89,7 @@ function generateLlmsTxt(publicDir: string) {
   L.push("# Johor Bahru Property Portal (jbpropertyportal.my)", "");
   L.push(`> Property portal for new-launch residential projects in Johor Bahru, Malaysia, near the Johor Bahru–Singapore RTS Link and the Causeway (CIQ). ${projectsData.length} projects with developer pricing, floor plans and facilities, plus ${blogPosts.length} buyer guides, ${areaGuides.length} area guides and ${developerProfiles.length} developer profiles for Malaysian, Singaporean and foreign buyers. Managed by Yee Woei Shyan (REN 46305), IQI Realty Sdn Bhd. Not a developer website.`, "");
   L.push("## Contact", "- Agent: Yee Woei Shyan, REN 46305", "- Agency: IQI Realty Sdn Bhd (E(1)1584), Kuala Lumpur", "- WhatsApp / Phone: +60 10-827 8932", "- Email: shyanyeews@gmail.com", `- Website: ${BASE_URL}/`, "");
+  L.push("## Note", `Official project listings (floor plans, prices, photos) are on ${GREEN_URL}/project/<slug>; this site holds the English buying guides, area guides and developer profiles.`, "");
   L.push("## Key pages", `- ${BASE_URL}/projects : all projects`, `- ${BASE_URL}/compare : side-by-side comparison`, `- ${BASE_URL}/buying-guides : buying guides`, `- ${BASE_URL}/blog : articles`, "");
   L.push(`## Projects (${projectsData.length})`, "");
   for (const p of projectsData as any[]) {

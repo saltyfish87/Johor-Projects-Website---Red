@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ArrowLeft, MapPin, Sparkles, Info, ShieldCheck, ExternalLink, Eye, Layers, Image as ImageIcon } from "lucide-react";
+import { greenProjectUrl } from "../utils/seo-texts";
 import { Project } from "../types";
 import { getDirectDriveImage, getProjectCoverImage } from "../utils";
 import MortgageCalculator from "./MortgageCalculator";
@@ -458,6 +459,12 @@ export default function ProjectDetailView({
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Property Listings</span>
         </button>
+        <p className="mt-3 text-sm text-slate-600 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+          Full listing with floor plans, pricing and photos:{" "}
+          <a href={greenProjectUrl(project.slug)} className="font-semibold text-emerald-700 underline underline-offset-2">
+            {project.project_name} on jbproperties.my &rarr;
+          </a>
+        </p>
       </div>
 
       {/* Top Feature Hero Banner */}
