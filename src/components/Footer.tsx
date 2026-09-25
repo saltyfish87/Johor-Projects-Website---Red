@@ -21,7 +21,7 @@ export default function Footer({ onNavigate }: FooterProps) {
               </div>
               <div>
                 <h3 className="font-display text-base font-bold tracking-tight leading-none uppercase">
-                  RTS Premium Gateway
+                  JB Property Portal
                 </h3>
                 <p className="font-sans text-[8px] uppercase tracking-[0.2em] text-slate-350 font-bold mt-1.5 leading-none">
                   JB Real Estate Corridor
@@ -150,17 +150,17 @@ export default function Footer({ onNavigate }: FooterProps) {
         {/* Bottom Bar: Compliance Disclaimers and Licenses */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p className="shrink-0 text-slate-500/80">
-            &copy; {new Date().getFullYear()} RTS Premium Gateway. All rights reserved.
+            &copy; {new Date().getFullYear()} JB Property Portal. All rights reserved.
           </p>
         </div>
 
         {/* Built By signature */}
         <div className="mt-4 pt-4 border-t border-slate-800/30 text-center text-[10px] text-slate-600 flex items-center justify-center space-x-1.5 font-mono uppercase tracking-widest">
-          <span>Crafted for cross-border elite investors</span>
+          <span>Guides for Singapore and foreign buyers</span>
           <span>&middot;</span>
           <Heart className="h-3 w-3 text-pink-600" />
           <span>&middot;</span>
-          <span>Johor Bahru Southern Corridor</span>
+          <span>Johor Bahru, Malaysia</span>
         </div>
       </div>
     </footer>

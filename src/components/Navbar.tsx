@@ -48,10 +48,10 @@ export default function Navbar({
           </div>
           <div>
             <h1 className="font-display text-base font-black tracking-tight text-brand-slate leading-none uppercase bg-gradient-to-r from-brand-slate via-slate-700 to-brand-blue bg-clip-text text-transparent">
-              RTS Premium Gateway
+              JB Property Portal
             </h1>
             <p className="font-sans text-[8px] uppercase tracking-[0.25em] text-brand-blue font-bold mt-1.5 leading-none">
-              Johor Bahru Capital Corridor
+              Guides for buyers from Singapore
             </p>
           </div>
         </div>

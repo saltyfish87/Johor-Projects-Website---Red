@@ -68,31 +68,41 @@ export interface BlogPost {
   title: string;
   slug: string;
   date: string;
+  /** Last content revision, e.g. "September 25, 2026" */
+  updated?: string;
   category: string;
   readTime: string;
   summary: string;
   content: string;
   image: string;
+  /** Alt text for the cover photo (which project it shows) */
+  imageAlt?: string;
   seoTitle?: string;
   metaTitle?: string;
   metaDescription?: string;
+  /** Official listing pages this article points to (slugs on jbproperties.my) */
+  relatedProjects?: string[];
 }
 
 export interface AreaGuide {
   name: string;
   slug: string;
-  rtsDistance: string;
-  ciqDistance: string;
-  connectivityScore: string; // e.g. "9.8/10"
-  averageYield: string; // e.g. "5.2% - 6.5%"
+  /** One-line answer to "where is this?" */
+  where: string;
   description: string;
+  /** Facts only: what is there, from the developer records and OpenStreetMap */
   highlights: string[];
+  /** Listed projects in this pocket (slugs on jbproperties.my) */
+  projectSlugs: string[];
+  updated?: string;
 }
 
 export interface DeveloperProfile {
   name: string;
   slug: string;
+  /** From the developer record on the project sheet, lightly edited */
   description: string;
-  established: string;
-  awards: string[];
+  /** Listed Johor Bahru projects (slugs on jbproperties.my) */
+  projectSlugs: string[];
+  updated?: string;
 }

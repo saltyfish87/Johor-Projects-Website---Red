@@ -9,11 +9,17 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { Project, Enquiry, BlogPost, AreaGuide, DeveloperProfile } from "./types";
 import RelatedProjectsBox from "./components/RelatedProjectsBox";
-import { HOME_SEO, STATIC_SEO, blogSeo, areaSeo, developerSeo, greenProjectUrl } from "./utils/seo-texts";
+import { HOME_SEO, STATIC_SEO, HOME_SEO_ZH, STATIC_SEO_ZH, blogSeo, areaSeo, developerSeo, greenProjectUrl } from "./utils/seo-texts";
 import { projectsData } from "./data/projects-data";
 import { blogPosts, areaGuides, developerProfiles } from "./data/blog-data";
 import defaultMappings from "../mapped-images.json";
-import { getTranslatedBlog } from "./utils/blog-translator";
+import { getTranslatedBlog, getTranslatedArea, getTranslatedDeveloper, isChinese } from "./utils/blog-translator";
+import { langFromPath, isHantPath, stripLangPrefix, localizePath, uiLanguageFor, PathLang } from "./utils/lang-path";
+import { greenProject, greenUrl, greenHero, distanceToBukitChagar, nearestCheckpoint, kmText } from "./data/green-index";
+import { UI_ZH as UI_ZH_CN } from "./data/blog-data.zh";
+import { uiHant, buyingGuidesHant } from "./data/blog-data.zh-hant.generated";
+import { buyingGuides } from "./data/buying-guides";
+import HantText from "./components/HantText";
 import { getDirectDriveImage, getProjectCoverImage } from "./utils";
 import { syncDriveImages } from "./utils/drive-sync";
 import { getTranslation } from "./utils/translation";
@@ -99,18 +105,18 @@ const renderMarkdownContent = (content: string): React.ReactNode => {
         }
 
         // 2. Headings
-        if (trimmed.startsWith("###")) {
-          return (
-            <h3 key={idx} className="text-base md:text-lg font-bold text-slate-900 tracking-tight mt-10 pt-6 border-t border-slate-100 first:border-0 first:pt-0">
-              {parseInlineMarkdown(trimmed.replace(/^###\s*/, ""))}
-            </h3>
-          );
-        }
         if (trimmed.startsWith("####")) {
           return (
             <h4 key={idx} className="text-sm md:text-base font-bold text-slate-800 tracking-tight mt-6">
               {parseInlineMarkdown(trimmed.replace(/^####\s*/, ""))}
             </h4>
+          );
+        }
+        if (trimmed.startsWith("###")) {
+          return (
+            <h3 key={idx} className="text-base md:text-lg font-bold text-slate-900 tracking-tight mt-10 pt-6 border-t border-slate-100 first:border-0 first:pt-0">
+              {parseInlineMarkdown(trimmed.replace(/^###\s*/, ""))}
+            </h3>
           );
         }
         if (trimmed.startsWith("##")) {
@@ -260,8 +266,12 @@ export default function App() {
   useEffect(() => {
     const handleRoute = () => {
       // Ignore a trailing slash so /projects/abc/ and /projects/abc resolve the same page
-      const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+      const rawPathname = window.location.pathname.replace(/\/+$/, "") || "/";
       const hash = window.location.hash || "";
+      // /zh and /zh-hant pages run the app in Chinese; a bare path switches a Chinese reader back to English
+      const pathLanguage = uiLanguageFor(langFromPath(rawPathname));
+      setLanguage((prev) => (pathLanguage === "ZH" ? "ZH" : prev === "ZH" ? "EN" : prev));
+      const pathname = stripLangPrefix(rawPathname);
 
       // 1. Check clean pathnames first
       if (pathname.startsWith("/projects/")) {
@@ -405,7 +415,8 @@ export default function App() {
     let title = "Johor Bahru Property Portal | RTS Link Premium Real Estate";
     let description = "Discover premium luxury residential properties in Johor Bahru. Synchronized real-time listings, expert analysis for Singapore daily commuters, transit indices, and RTS Link connectivity guide.";
     let keywords = `Johor Bahru property, JB real estate, RTS Link properties, CIQ Checkpoint JB, Singapore daily commuters, JB property portal, Princess Cove, Coronade Twins, buying property in Malaysia, ${allProjectNames}`;
-    let ogImage = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80";
+    let ogImage = greenHero("aethera-residences") || "";
+    const zhUi = isChinese(language);
     
     // Breadcrumbs list helper
     const breadcrumbItems = [
@@ -415,8 +426,8 @@ export default function App() {
     let customSchema: any = null;
 
     if (currentView === "home") {
-      title = HOME_SEO.title;
-      description = HOME_SEO.description;
+      title = zhUi ? HOME_SEO_ZH.title : HOME_SEO.title;
+      description = zhUi ? HOME_SEO_ZH.description : HOME_SEO.description;
       keywords = `${HOME_SEO.keywords}, ${allProjectNames}`;
       
       customSchema = {
@@ -424,7 +435,7 @@ export default function App() {
         "@graph": [
           {
             "@type": "WebSite",
-            "@id": "https://www.jbpropertyportal.my/#website",
+            "@id": "https://www.jbpropertyportal.my/website",
             "url": "https://www.jbpropertyportal.my/",
             "name": "Johor Bahru Property Portal",
             "description": "Premium RTS Link properties and expert transit indices for Singapore daily commuters.",
@@ -432,16 +443,16 @@ export default function App() {
               "@type": "SearchAction",
               "target": {
                 "@type": "EntryPoint",
-                "urlTemplate": "https://www.jbpropertyportal.my/#projects?search={search_term_string}"
+                "urlTemplate": "https://www.jbpropertyportal.my/projects?search={search_term_string}"
               },
               "query-input": "required name=search_term_string"
             }]
           },
           {
             "@type": "RealEstateAgent",
-            "@id": "https://www.jbpropertyportal.my/#agent",
+            "@id": "https://www.jbpropertyportal.my/agent",
             "name": "Shyan Yee - Premium Johor Bahru Property Consultant",
-            "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80",
+            "image": greenHero("aethera-residences"),
             "url": "https://www.jbpropertyportal.my/",
             "telephone": "+6010-8278932",
             "email": "shyanyeews@gmail.com",
@@ -462,10 +473,10 @@ export default function App() {
         ]
       };
     } else if (currentView === "projects") {
-      title = STATIC_SEO.projects.title;
-      description = STATIC_SEO.projects.description;
+      title = (zhUi ? STATIC_SEO_ZH : STATIC_SEO).projects.title;
+      description = (zhUi ? STATIC_SEO_ZH : STATIC_SEO).projects.description;
       keywords = `JB real estate list, properties in Johor, RTS Link condo, luxury condos JB, ${allProjectNames}`;
-      breadcrumbItems.push({ name: "Properties", item: "https://www.jbpropertyportal.my/#projects" });
+      breadcrumbItems.push({ name: "Properties", item: "https://www.jbpropertyportal.my/projects" });
     } else if (currentView === "project-detail" && activeSlug) {
       const proj = projects.find(p => p.slug === activeSlug);
       if (proj) {
@@ -476,8 +487,8 @@ export default function App() {
         const mainImg = proj.image_url || proj.image || proj.img || ogImage;
         ogImage = mainImg;
 
-        breadcrumbItems.push({ name: "Properties", item: "https://www.jbpropertyportal.my/#projects" });
-        breadcrumbItems.push({ name: proj.project_name, item: `https://www.jbpropertyportal.my/#projects/${proj.slug}` });
+        breadcrumbItems.push({ name: "Properties", item: "https://www.jbpropertyportal.my/projects" });
+        breadcrumbItems.push({ name: proj.project_name, item: `https://www.jbpropertyportal.my/projects/${proj.slug}` });
 
         let lat = "1.4619";
         let lng = "103.7618";
@@ -492,7 +503,7 @@ export default function App() {
           "@type": "RealEstateListing",
           "name": proj.project_name,
           "description": description,
-          "url": `https://www.jbpropertyportal.my/#projects/${proj.slug}`,
+          "url": `https://www.jbpropertyportal.my/projects/${proj.slug}`,
           "image": ogImage,
           "about": {
             "@type": "SingleFamilyResidence",
@@ -514,53 +525,63 @@ export default function App() {
             "@type": "Offer",
             "price": proj.price_min,
             "priceCurrency": "MYR",
-            "url": `https://www.jbpropertyportal.my/#projects/${proj.slug}`,
+            "url": `https://www.jbpropertyportal.my/projects/${proj.slug}`,
             "availability": "https://schema.org/InStock"
           }
         };
       }
     } else if (currentView === "compare") {
-      title = STATIC_SEO.compare.title;
-      description = STATIC_SEO.compare.description;
+      title = (zhUi ? STATIC_SEO_ZH : STATIC_SEO).compare.title;
+      description = (zhUi ? STATIC_SEO_ZH : STATIC_SEO).compare.description;
       keywords = "compare JB properties, RTS Link condo comparison, JB property stats";
-      breadcrumbItems.push({ name: "Compare", item: "https://www.jbpropertyportal.my/#compare" });
+      breadcrumbItems.push({ name: "Compare", item: "https://www.jbpropertyportal.my/compare" });
     } else if (currentView === "area" && activeSlug) {
       const guide = areaGuides.find(a => a.slug === activeSlug);
       if (guide) {
-        title = areaSeo(guide).title;
-        description = areaSeo(guide).description;
+        const g = getTranslatedArea(guide, language);
+        title = areaSeo(g, zhUi ? "ZH" : "EN").title;
+        description = areaSeo(g, zhUi ? "ZH" : "EN").description;
         keywords = `${guide.name} JB, real estate in ${guide.name}, ${guide.name} rental yields, RTS Link`;
-        breadcrumbItems.push({ name: "Areas", item: "https://www.jbpropertyportal.my/#area" });
-        breadcrumbItems.push({ name: guide.name, item: `https://www.jbpropertyportal.my/#area/${guide.slug}` });
+        breadcrumbItems.push({ name: "Areas", item: "https://www.jbpropertyportal.my/area" });
+        breadcrumbItems.push({ name: guide.name, item: `https://www.jbpropertyportal.my/area/${guide.slug}` });
       }
     } else if (currentView === "developer" && activeSlug) {
       const dev = developerProfiles.find(d => d.slug === activeSlug);
       if (dev) {
-        title = developerSeo(dev).title;
-        description = developerSeo(dev).description;
+        const d = getTranslatedDeveloper(dev, language);
+        title = developerSeo(d, zhUi ? "ZH" : "EN").title;
+        description = developerSeo(d, zhUi ? "ZH" : "EN").description;
         keywords = `${dev.name}, ${dev.name} track record, JB property developers, luxury builders Malaysia`;
-        breadcrumbItems.push({ name: "Developers", item: "https://www.jbpropertyportal.my/#developer" });
-        breadcrumbItems.push({ name: dev.name, item: `https://www.jbpropertyportal.my/#developer/${dev.slug}` });
+        breadcrumbItems.push({ name: "Developers", item: "https://www.jbpropertyportal.my/developer" });
+        breadcrumbItems.push({ name: dev.name, item: `https://www.jbpropertyportal.my/developer/${dev.slug}` });
       }
     } else if (currentView === "buying-guides") {
-      title = STATIC_SEO["buying-guides"].title;
-      description = STATIC_SEO["buying-guides"].description;
+      title = (zhUi ? STATIC_SEO_ZH : STATIC_SEO)["buying-guides"].title;
+      description = (zhUi ? STATIC_SEO_ZH : STATIC_SEO)["buying-guides"].description;
+      const bg = activeSlug ? buyingGuides.find((g) => g.type === activeSlug) : undefined;
+      if (bg) {
+        const t = zhUi ? guideZh(bg) : { title: bg.title.EN, intro: bg.intro.EN };
+        title = `${t.title} | jbpropertyportal.my`;
+        description = t.intro;
+        breadcrumbItems.push({ name: "Buying Guides", item: "https://www.jbpropertyportal.my/buying-guides" });
+      }
       keywords = "buy property in Malaysia as foreigner, RTS Link transit guide, Singapore JB daily commute";
-      breadcrumbItems.push({ name: "Buying Guides", item: "https://www.jbpropertyportal.my/#buying-guides" });
+      breadcrumbItems.push({ name: "Buying Guides", item: "https://www.jbpropertyportal.my/buying-guides" });
     } else if (currentView === "blog") {
-      title = STATIC_SEO.blog.title;
-      description = STATIC_SEO.blog.description;
+      title = (zhUi ? STATIC_SEO_ZH : STATIC_SEO).blog.title;
+      description = (zhUi ? STATIC_SEO_ZH : STATIC_SEO).blog.description;
       keywords = "JB real estate blog, RTS Link construction progress, JB property news, Johor rental yield";
-      breadcrumbItems.push({ name: "Blog", item: "https://www.jbpropertyportal.my/#blog" });
+      breadcrumbItems.push({ name: "Blog", item: "https://www.jbpropertyportal.my/blog" });
     } else if (currentView === "blog-detail" && activeSlug) {
-      const post = blogPosts.find(b => b.slug === activeSlug);
-      if (post) {
+      const post0 = blogPosts.find(b => b.slug === activeSlug);
+      if (post0) {
+        const post = getTranslatedBlog(post0, language);
         title = blogSeo(post).title;
         description = blogSeo(post).description;
         keywords = `${post.title}, JB property blog, RTS Link news, Johor Bahru market trends`;
         if (post.image) ogImage = post.image;
-        breadcrumbItems.push({ name: "Blog", item: "https://www.jbpropertyportal.my/#blog" });
-        breadcrumbItems.push({ name: post.title, item: `https://www.jbpropertyportal.my/#blog/${post.slug}` });
+        breadcrumbItems.push({ name: "Blog", item: "https://www.jbpropertyportal.my/blog" });
+        breadcrumbItems.push({ name: post.title, item: `https://www.jbpropertyportal.my/blog/${post.slug}` });
 
         customSchema = {
           "@context": "https://schema.org",
@@ -569,16 +590,17 @@ export default function App() {
           "description": description,
           "image": ogImage,
           "datePublished": post.date,
+          "dateModified": post.updated || post.date,
           "author": {
             "@type": "Person",
-            "name": "Shyan Yee"
+            "name": "Yee Woei Shyan (REN 46305)"
           },
           "publisher": {
             "@type": "Organization",
             "name": "Johor Bahru Property Portal",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&h=200"
+              "url": "https://www.jbpropertyportal.my/favicon.png"
             }
           }
         };
@@ -590,6 +612,7 @@ export default function App() {
 
     // Apply document updates
     document.title = title;
+    document.documentElement.lang = hant ? "zh-Hant" : zhUi ? "zh-CN" : "en";
     
     // Update head elements
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -672,7 +695,7 @@ export default function App() {
         "@graph": jsonGraph
       }, null, 2);
     }
-  }, [currentView, activeSlug, projects]);
+  }, [currentView, activeSlug, projects, language]);
 
   const navigateTo = (view: string) => {
     let targetPath = view;
@@ -684,6 +707,7 @@ export default function App() {
       targetPath = "/" + view;
     }
 
+    targetPath = localizePath(targetPath, langFromPath(window.location.pathname));
     try {
       window.history.pushState({}, "", targetPath);
       window.dispatchEvent(new PopStateEvent("popstate"));
@@ -692,6 +716,28 @@ export default function App() {
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Language menu: Chinese has its own URLs (/zh), other languages keep the English URL
+  const changeLanguage = (code: string) => {
+    const bare = stripLangPrefix(window.location.pathname);
+    const target = code === "ZH" ? localizePath(bare, "zh") : bare;
+    setLanguage(code);
+    const current = window.location.pathname.replace(/\/+$/, "") || "/";
+    if (target !== current) {
+      try {
+        window.history.pushState({}, "", target);
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      } catch (e) {
+        // ignore
+      }
+    }
+  };
+  const pathLang: PathLang = typeof window !== "undefined" ? langFromPath(window.location.pathname) : "en";
+  const hant = pathLang === "zh-hant";
+  const UI_ZH: typeof UI_ZH_CN = hant ? uiHant : UI_ZH_CN;
+  /** A buyer guide's Chinese fields, Traditional on /zh-hant */
+  const guideZh = (g: (typeof buyingGuides)[number]) => (hant && buyingGuidesHant[g.type]) || { label: g.label.ZH, title: g.title.ZH, intro: g.intro.ZH, sections: g.sections.map((s) => ({ heading: s.heading.ZH, body: s.body.ZH })) };
+  const greenLang: "en" | "zh" | "zh-hant" = isChinese(language) ? (hant ? "zh-hant" : "zh") : "en";
 
   // Fetch dynamic projects from server endpoint with direct Google Drive sync trigger
   const fetchLiveProjects = async (activeToken?: string | null) => {
@@ -881,20 +927,20 @@ export default function App() {
             {/* RTS Commute highlight */}
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto pt-8 border-t border-white/10 text-left font-mono">
               <div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">RTS Transit Duration</span>
-                <span className="text-xl font-bold text-white block mt-1">5 Minutes</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">RTS ride (operator)</span>
+                <span className="text-xl font-bold text-white block mt-1">~5 min</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">Woodlands capacity</span>
-                <span className="text-xl font-bold text-white block mt-1">10k / Hour</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">Capacity (operator)</span>
+                <span className="text-xl font-bold text-white block mt-1">10,000 / hour / way</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">RTS Launch Year</span>
-                <span className="text-xl font-bold text-white block mt-1">2026/2027</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">Passenger service target</span>
+                <span className="text-xl font-bold text-white block mt-1">End 2026</span>
               </div>
               <div>
-                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">JS-SEZ Status</span>
-                <span className="text-xl font-bold text-emerald-400 block mt-1">Operational</span>
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider block">Listed projects</span>
+                <span className="text-xl font-bold text-emerald-400 block mt-1">9 · all freehold</span>
               </div>
             </div>
 
@@ -919,77 +965,40 @@ export default function App() {
                   <div className="flex items-start space-x-3 bg-white/65 backdrop-blur-md rounded-xl p-4 border border-slate-200/40 shadow-sm">
                     <ShieldCheck className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-bold text-brand-slate">Co-Located Customs (CIQ)</h4>
-                      <p className="text-slate-500 mt-1 leading-relaxed">Single-point customs clearance means you clear both Malaysia and Singapore immigration at the departure station, saving hours of daily travel time.</p>
+                      <h4 className="font-bold text-brand-slate">Immigration at the departure station</h4>
+                      <p className="text-slate-500 mt-1 leading-relaxed">The RTS Link operator describes clearing both Malaysian and Singapore immigration at the station you board from, before a ride of about five minutes.</p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-3 bg-white/65 backdrop-blur-md rounded-xl p-4 border border-slate-200/40 shadow-sm">
                     <Building2 className="h-5 w-5 text-brand-blue shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-bold text-brand-slate">Premium Connectivity Link</h4>
-                      <p className="text-slate-500 mt-1 leading-relaxed">Developments in this premier zone feature direct, covered, and sheltered pedestrian link bridges of 400m to 650m directly to the RTS Station and CIQ.</p>
+                      <h4 className="font-bold text-brand-slate">Measured, not marketed</h4>
+                      <p className="text-slate-500 mt-1 leading-relaxed">Every distance on this site is a straight line from the project coordinates on OpenStreetMap. Covered links of 400 m to 650 m are the developers' own statements.</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Side Stats visual box */}
-              <div className="w-full lg:w-[400px] shrink-0 bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-6 shadow-xl relative overflow-hidden border border-slate-800 text-left">
+              {/* Facts box: figures from the developer records and OpenStreetMap */}
+              <div className="w-full lg:w-[400px] shrink-0 bg-slate-900 text-white rounded-2xl p-6 md:p-8 space-y-5 shadow-xl relative overflow-hidden border border-slate-800">
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-transparent pointer-events-none" />
-                <h4 className="font-display font-bold text-base tracking-wide uppercase border-b border-slate-800 pb-3 flex items-center justify-between">
-                  <span>{getTranslation(language, "marketMetrics")}</span>
-                  <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-mono">VS</span>
-                </h4>
-                
-                <div className="space-y-5">
-                  {/* Metric 1: Avg Price PSF */}
-                  <div className="space-y-1.5">
-                    <span className="text-slate-400 text-[10px] uppercase tracking-wider block font-mono">{getTranslation(language, "pricePremium")}</span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-slate-400 text-[9px] block">JB (RTS)</span>
-                        <span className="text-sm font-bold text-emerald-400">~S$ 250 - 400</span>
-                      </div>
-                      <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-slate-400 text-[9px] block">SG (Woodlands)</span>
-                        <span className="text-sm font-bold text-slate-300">~S$ 1,400 - 2,000</span>
-                      </div>
+                <h4 className="font-display font-bold text-base tracking-wide uppercase border-b border-slate-800 pb-3">{isChinese(language) ? "挂牌项目一览" : "The listed projects at a glance"}</h4>
+                <div className="space-y-3 text-xs">
+                  {[
+                    [isChinese(language) ? "项目数" : "Projects listed", "9"],
+                    [isChinese(language) ? "发展商起价" : "Developer prices from", "RM300,000"],
+                    [isChinese(language) ? "地契" : "Tenure", isChinese(language) ? "全部永久地契" : "All freehold"],
+                    [isChinese(language) ? "离武吉查加站最近" : "Nearest to Bukit Chagar", isChinese(language) ? "Coronade Twins，直线约 350 米" : "Coronade Twins, ~350 m straight line"],
+                    [isChinese(language) ? "竣工" : "Completion", isChinese(language) ? "2023（已竣工）至 2030" : "2023 (completed) to 2030"]
+                  ].map(([k, v]) => (
+                    <div key={k} className="bg-slate-800/60 p-3 rounded-xl border border-slate-800 flex items-baseline justify-between gap-3">
+                      <span className="text-slate-400 text-[10px] uppercase tracking-wider font-mono">{k}</span>
+                      <span className="text-sm font-bold text-emerald-400 text-right">{v}</span>
                     </div>
-                  </div>
-
-                  {/* Metric 2: Avg Rental Yield */}
-                  <div className="space-y-1.5">
-                    <span className="text-slate-400 text-[10px] uppercase tracking-wider block font-mono">{getTranslation(language, "averageYield")}</span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-slate-400 text-[9px] block">JB (RTS)</span>
-                        <span className="text-sm font-bold text-emerald-400">6.0% - 8.5%</span>
-                      </div>
-                      <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-slate-400 text-[9px] block">SG (Average)</span>
-                        <span className="text-sm font-bold text-slate-300">2.8% - 3.8%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Metric 3: Entry Price (1-Bed) */}
-                  <div className="space-y-1.5">
-                    <span className="text-slate-400 text-[10px] uppercase tracking-wider block font-mono">{getTranslation(language, "timeSaved")}</span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-slate-400 text-[9px] block">JB (RTS)</span>
-                        <span className="text-sm font-bold text-emerald-400">~S$ 150K - 250K</span>
-                      </div>
-                      <div className="bg-slate-800/60 p-2.5 rounded-xl border border-slate-800">
-                        <span className="text-slate-400 text-[9px] block">SG (Woodlands)</span>
-                        <span className="text-sm font-bold text-slate-300">~S$ 800K - 1.1M</span>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-
                 <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 font-mono leading-normal">
-                  * Leverage 4x to 6x purchasing power with higher yields and lower initial capital outlay by choosing JB RTS corridor.
+                  {isChinese(language) ? "来源：发展商记录（2026 年 9 月）与 OpenStreetMap 测距。本站不发布回酬或涨幅预测。" : "Sources: developer records (September 2026) and OpenStreetMap measurements. This site publishes no yield or price forecasts."}
                 </div>
               </div>
 
@@ -1033,9 +1042,9 @@ export default function App() {
         {/* Specific Client Buying Pathways (Malaysian, Singaporean, Foreigner) */}
         <div className="mx-auto max-w-7xl px-6 md:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">Targeted Portals</span>
-            <h3 className="font-sans text-3xl font-semibold tracking-tight text-slate-900 mt-2">Tailored Acquisition Paths</h3>
-            <p className="text-slate-500 text-sm mt-3 max-w-lg mx-auto">Select your legal/residency profile to review tax limits, RPGT regulations, stamp duties and MM2H conditions.</p>
+            <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">Start here</span>
+            <h3 className="font-sans text-3xl font-semibold tracking-tight text-slate-900 mt-2">Buying guides by profile</h3>
+            <p className="text-slate-500 text-sm mt-3 max-w-lg mx-auto">Pick your profile for the rules that apply to you: price thresholds, state consent, financing and taxes, without invented figures.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1049,7 +1058,7 @@ export default function App() {
                 <UserCheck className="h-6 w-6" />
               </div>
               <h4 className="font-sans font-semibold text-lg text-slate-900 group-hover:text-blue-600 transition-colors mb-2">Malaysian Citizens</h4>
-              <p className="text-slate-500 text-sm leading-relaxed mb-4">Financing rules, downpayment exemptions, EPF Account 2 withdrawals, and RPGT tax bands explained for locals.</p>
+              <p className="text-slate-500 text-sm leading-relaxed mb-4">Financing, EPF Account 2 withdrawals and Real Property Gains Tax, explained for citizens.</p>
               <span className="text-xs font-bold text-blue-600 group-hover:underline inline-flex items-center space-x-1">
                 <span>View Guidelines</span>
                 <ChevronRight className="h-3 w-3" />
@@ -1080,8 +1089,8 @@ export default function App() {
               <div className="flex h-12 w-12 items-center justify-center bg-amber-50 text-amber-600 rounded-xl mb-6 font-semibold group-hover:bg-amber-600 group-hover:text-white transition-all">
                 <Scale className="h-6 w-6" />
               </div>
-              <h4 className="font-sans font-semibold text-lg text-slate-900 group-hover:text-amber-600 transition-colors mb-2">Foreign HNWI Investors</h4>
-              <p className="text-slate-500 text-sm leading-relaxed mb-4">Minimum RM1,000,000 purchase thresholds, MM2H visa options, state levies, and corporate asset ownership structures.</p>
+              <h4 className="font-sans font-semibold text-lg text-slate-900 group-hover:text-amber-600 transition-colors mb-2">Foreign Buyers</h4>
+              <p className="text-slate-500 text-sm leading-relaxed mb-4">The Johor minimum purchase price, state consent and the MM2H residence pass, for buyers from other countries.</p>
               <span className="text-xs font-bold text-amber-600 group-hover:underline inline-flex items-center space-x-1">
                 <span>View Guidelines</span>
                 <ChevronRight className="h-3 w-3" />
@@ -1126,7 +1135,7 @@ export default function App() {
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-103" 
                         onError={(e) => {
                           e.currentTarget.onerror = null;
-                          e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
+                          e.currentTarget.src = "https://lh3.googleusercontent.com/d/1j18QOgL-Bha727OihaC5-58guduylh7g=w1200";
                         }}
                       />
                     </div>
@@ -1872,8 +1881,8 @@ export default function App() {
 
   // 5. AREA GUIDE DETAIL VIEW RENDER
   const renderAreaView = () => {
-    const guide = areaGuides.find((a) => a.slug === activeSlug);
-    if (!guide) {
+    const raw = areaGuides.find((a) => a.slug === activeSlug);
+    if (!raw) {
       return (
         <div className="text-center py-20">
           <Info className="h-10 w-10 text-slate-400 mx-auto mb-3" />
@@ -1884,45 +1893,66 @@ export default function App() {
         </div>
       );
     }
+    const guide = getTranslatedArea(raw, language);
+    const zh = isChinese(language);
+    const rows = raw.projectSlugs
+      .map((s) => ({ slug: s, p: greenProject(s), station: distanceToBukitChagar(s), ciq: nearestCheckpoint(s) }))
+      .filter((r) => r.p);
+    const km = (v?: number) => (v !== undefined ? kmText(v, zh ? "zh" : "en") : zh ? "待确认" : "pending");
 
     return (
-      <div className="mx-auto max-w-7xl px-6 py-12 md:px-8 font-sans space-y-12 text-left">
+      <div className="mx-auto max-w-4xl px-6 py-12 md:px-8 font-sans space-y-10 text-left">
         <button
           onClick={() => navigateTo("home")}
           className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-all flex items-center space-x-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Home</span>
+          <span>{zh ? "返回首页" : "Back to Home"}</span>
         </button>
 
         <div className="space-y-4">
-          <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">Micro Area Masterclass Guide</span>
-          <h2 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-none">{guide.name}</h2>
-          <p className="text-slate-500 text-sm max-w-xl">{guide.description}</p>
+          <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">{zh ? "区域指南" : "Area guide"}</span>
+          <h1 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-tight">{guide.name}</h1>
+          <p className="text-slate-700 text-sm font-medium">{guide.where}</p>
+          <p className="text-slate-500 text-sm leading-relaxed">{guide.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 font-mono text-xs">
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <span className="text-slate-500 uppercase block">RTS Station Distance</span>
-            <span className="text-xl font-bold text-slate-900 block mt-1.5">{guide.rtsDistance}</span>
+        {rows.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="font-bold text-slate-900 text-lg tracking-tight">{zh ? UI_ZH.areaProjects : "Listed projects here, measured"}</h2>
+            <div className="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-slate-50 text-slate-700">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">{zh ? UI_ZH.project : "Project"}</th>
+                    <th className="px-4 py-3 font-semibold">{zh ? UI_ZH.toStation : "To Bukit Chagar"}</th>
+                    <th className="px-4 py-3 font-semibold">{zh ? UI_ZH.toCiq : "To checkpoint"}</th>
+                    <th className="px-4 py-3 font-semibold">{zh ? UI_ZH.from : "From"}</th>
+                    <th className="px-4 py-3 font-semibold">{zh ? UI_ZH.completion : "Completion"}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {rows.map((r) => (
+                    <tr key={r.slug}>
+                      <td className="px-4 py-3">
+                        <a href={greenUrl(r.slug, greenLang)} className="text-emerald-700 font-semibold underline underline-offset-2">{r.p!.project_name}</a>
+                      </td>
+                      <td className="px-4 py-3">{km(r.station)}</td>
+                      <td className="px-4 py-3">{km(r.ciq?.km)}</td>
+                      <td className="px-4 py-3">{r.p!.price_min}</td>
+                      <td className="px-4 py-3">{r.p!.completion_year}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-slate-500">{zh ? UI_ZH.distanceNote : "Straight-line distances measured on OpenStreetMap from the project coordinates; a walk is longer. Prices are the developers' indicative prices."}</p>
           </div>
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <span className="text-slate-500 uppercase block">Woodlands CIQ Distance</span>
-            <span className="text-xl font-bold text-slate-900 block mt-1.5">{guide.ciqDistance}</span>
-          </div>
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <span className="text-slate-500 uppercase block">Connectivity Index</span>
-            <span className="text-xl font-bold text-blue-600 block mt-1.5">{guide.connectivityScore}</span>
-          </div>
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-            <span className="text-slate-500 uppercase block">Gross Rental Yield</span>
-            <span className="text-xl font-bold text-emerald-600 block mt-1.5">{guide.averageYield}</span>
-          </div>
-        </div>
+        )}
 
-        <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 space-y-6">
-          <h3 className="font-bold text-xl">Connectivity Highlights & Catalysts</h3>
-          <ul className="space-y-4 text-sm text-slate-300">
+        <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-10 space-y-5">
+          <h2 className="font-bold text-lg">{zh ? "重点事实" : "Key facts"}</h2>
+          <ul className="space-y-3 text-sm text-slate-300">
             {guide.highlights.map((hl, i) => (
               <li key={i} className="flex items-start space-x-3">
                 <CheckSquare className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
@@ -1932,52 +1962,16 @@ export default function App() {
           </ul>
         </div>
 
-        {/* Zoned Projects in this area */}
-        <div className="space-y-6">
-          <h3 className="font-bold text-slate-900 text-xl tracking-tight">Investable Projects in this Micro-market</h3>
-          <p className="text-slate-500 text-xs">The following premium property acquisitions are fully zoned and approved within the {guide.name} sector:</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {projects.filter(p => {
-              const projArea = p.area.toLowerCase();
-              const guideName = guide.name.toLowerCase();
-              return projArea.includes(guideName) || guideName.includes(projArea) ||
-                     (guide.slug === "ciq" && projArea.includes("ciq")) ||
-                     (guide.slug === "bukit-chagar" && projArea.includes("chagar")) ||
-                     (guide.slug === "rts" && projArea.includes("rts"));
-            }).map((p) => (
-              <div 
-                key={p.slug}
-                onClick={() => navigateTo(`projects/${p.slug}`)}
-                className="group cursor-pointer rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="h-40 overflow-hidden bg-slate-100">
-                    <img src={getProjectCoverImage(p)} alt={p.project_name} className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" />
-                  </div>
-                  <div className="p-5 space-y-2">
-                    <span className="text-[10px] font-mono font-bold text-blue-600 uppercase tracking-wider">{p.project_type}</span>
-                    <h4 className="font-sans font-semibold text-slate-800 group-hover:text-blue-600 text-sm leading-snug truncate">{p.project_name}</h4>
-                    <p className="text-slate-400 text-xs font-mono">{p.price_min} - {p.price_max}</p>
-                  </div>
-                </div>
-                <div className="p-5 pt-0 border-t border-slate-50 mt-4 flex items-center justify-between text-xs font-semibold text-blue-600">
-                  <span>Explore Technical Specs</span>
-                  <span>&rarr;</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <RelatedProjectsBox projects={projects} title={`Official listings for projects near ${guide.name}`} />
+        <RelatedProjectsBox slugs={raw.projectSlugs} language={language} hant={hant} title={zh ? `${guide.name}：官方挂牌页` : `Official listings in ${guide.name}`} />
+        <p className="text-xs text-slate-400">{zh ? `更新：${UI_ZH.updated}` : `Updated ${raw.updated}`} · {zh ? UI_ZH.author : "Yee Woei Shyan (REN 46305), IQI Realty Sdn Bhd"}</p>
       </div>
     );
   };
 
   // 6. DEVELOPER PROFILE RENDER
   const renderDeveloperView = () => {
-    const profile = developerProfiles.find((d) => d.slug === activeSlug);
-    if (!profile) {
+    const raw = developerProfiles.find((d) => d.slug === activeSlug);
+    if (!raw) {
       return (
         <div className="text-center py-20">
           <Info className="h-10 w-10 text-slate-400 mx-auto mb-3" />
@@ -1985,161 +1979,91 @@ export default function App() {
         </div>
       );
     }
+    const profile = getTranslatedDeveloper(raw, language);
+    const zh = isChinese(language);
 
     return (
-      <div className="mx-auto max-w-7xl px-6 py-12 md:px-8 font-sans space-y-8 text-left">
+      <div className="mx-auto max-w-4xl px-6 py-12 md:px-8 font-sans space-y-8 text-left">
         <button
           onClick={() => navigateTo("home")}
           className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-all flex items-center space-x-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Home</span>
+          <span>{zh ? "返回首页" : "Back to Home"}</span>
         </button>
 
         <div className="space-y-4">
-          <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">Legendary Builder Legacy</span>
-          <h2 className="font-sans text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">{profile.name}</h2>
-          <p className="text-xs text-slate-400 font-mono">Inception Year: {profile.established}</p>
+          <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">{zh ? "发展商" : "Developer"}</span>
+          <h1 className="font-sans text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">{profile.name}</h1>
         </div>
 
-        <p className="text-slate-600 leading-relaxed text-sm">{profile.description}</p>
+        <p className="text-slate-600 leading-relaxed text-sm md:text-base">{profile.description}</p>
 
-        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-          <h3 className="font-bold text-slate-800 text-sm">Key Professional Accolades</h3>
-          <ul className="space-y-2 text-xs text-slate-600 font-semibold font-mono">
-            {profile.awards.map((aw, i) => (
-              <li key={i} className="flex items-center space-x-2">
-                <Star className="h-4 w-4 text-yellow-500" />
-                <span>{aw}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Developer's Active Projects list */}
-        <div className="space-y-6 pt-4">
-          <h3 className="font-bold text-slate-900 text-xl tracking-tight">Active Developments in Johor Bahru</h3>
-          <p className="text-slate-500 text-xs">Explore current luxury high-rise acquisitions masterplanned by {profile.name}:</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.filter(p => {
-              const projDev = p.developer.toLowerCase();
-              const profName = profile.name.toLowerCase();
-              // Fuzzy developer match
-              return projDev.includes(profName.split(" ")[0]) || profName.includes(projDev.split(" ")[0]);
-            }).map((p) => (
-              <div 
-                key={p.slug}
-                onClick={() => navigateTo(`projects/${p.slug}`)}
-                className="group cursor-pointer rounded-2xl border border-slate-100 bg-white p-4 hover:shadow-md transition-all flex items-center space-x-4 shadow-sm"
-              >
-                <div className="h-16 w-16 bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                  <img src={getProjectCoverImage(p)} alt={p.project_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                </div>
-                <div className="truncate flex-1">
-                  <span className="text-[9px] font-mono font-bold text-blue-600 uppercase block">{p.project_type}</span>
-                  <span className="block font-semibold text-slate-800 text-sm truncate">{p.project_name}</span>
-                  <span className="text-[10px] text-slate-400 font-mono">{p.price_min} - {p.price_max}</span>
-                </div>
-                <span className="text-blue-600 font-bold text-xs shrink-0 group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <RelatedProjectsBox projects={projects.filter((p) => p.developer.toLowerCase().includes(profile.name.toLowerCase().split(" ")[0]))} title={`${profile.name} projects — official listings on jbproperties.my`} />
+        <RelatedProjectsBox slugs={raw.projectSlugs} language={language} hant={hant} title={zh ? `${profile.name}${UI_ZH.developerProjects}` : `${profile.name} projects in Johor Bahru — official listings`} />
+        <p className="text-xs text-slate-400">{zh ? `更新：${UI_ZH.updated}` : `Updated ${raw.updated}`} · {zh ? UI_ZH.author : "Yee Woei Shyan (REN 46305), IQI Realty Sdn Bhd"}</p>
       </div>
     );
   };
 
   // 7. BUYING GUIDES VIEW RENDER
   const renderBuyingGuidesView = () => {
-    const type = activeSlug; // "malaysian-buyer", "singaporean-commuter", "foreigner-investor"
+    const zh = isChinese(language);
+    const guide = buyingGuides.find((g) => g.type === activeSlug);
+    const txt = (g: (typeof buyingGuides)[number]) => (zh ? guideZh(g) : { label: g.label.EN, title: g.title.EN, intro: g.intro.EN, sections: g.sections.map((s) => ({ heading: s.heading.EN, body: s.body.EN })) });
 
     return (
       <div className="mx-auto max-w-4xl px-6 py-12 md:px-8 font-sans space-y-8 text-left leading-relaxed">
         <button
-          onClick={() => navigateTo("home")}
+          onClick={() => navigateTo(guide ? "buying-guides" : "home")}
           className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-all flex items-center space-x-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Home</span>
+          <span>{guide ? (zh ? "全部指南" : "All buying guides") : zh ? "返回首页" : "Back to Home"}</span>
         </button>
 
-        {type === "malaysian-buyer" && (
+        {!guide && (
           <div className="space-y-6">
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">National Acquisition Path</span>
-            <h2 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-none">Malaysian Citizens Buying Guide</h2>
-            
-            <p className="text-slate-600 text-sm">
-              Malaysian citizens enjoy maximum financing ease and zero state-level minimum purchase restrictions.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2 mt-6">Financing & Lending Terms</h3>
-            <p className="text-slate-500 text-sm">
-              Local banks comfortably finance up to 90% of the net property valuation for first-time buyers. Annual mortgage interest rates hover between 3.6% to 4.2% based on standard amortization guidelines.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2">EPF Account 2 Withdrawal</h3>
-            <p className="text-slate-500 text-sm">
-              Buyers can withdraw up to 100% of their EPF (Employees Provident Fund) Account 2 balance to offset the initial 10% downpayment or pay down the outstanding bank loan balance.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2">RPGT (Real Property Gains Tax)</h3>
-            <p className="text-slate-500 text-sm">
-              Under current tax structures: Gains on disposal within 3 years of acquisition are taxed at 30%; 4th year is taxed at 20%; 5th year is taxed at 15%; and after 5 years, Malaysian citizens enjoy a 0% RPGT exemption on residential assets.
-            </p>
+            <h1 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-tight">{zh ? "在新山买房：按买家身份的指南" : "Buying in Johor Bahru: guides by buyer profile"}</h1>
+            <p className="text-slate-600 text-sm">{zh ? "先选你的身份。三份指南只讲能查证的规定，税率和利率请向律师和银行确认。" : "Pick your profile. Each guide sticks to rules that can be checked; rates are for your lawyer and bank to confirm."}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {buyingGuides.map((g) => (
+                <button key={g.type} onClick={() => navigateTo(`buying-guides/${g.type}`)} className="text-left rounded-2xl border border-slate-100 bg-white p-5 hover:shadow-md transition-all">
+                  <span className="text-[10px] font-mono font-bold text-blue-600 uppercase block">{txt(g).label}</span>
+                  <span className="block font-semibold text-slate-900 mt-1">{txt(g).title}</span>
+                  <span className="block text-xs text-slate-500 mt-2">{txt(g).intro}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {type === "singaporean-commuter" && (
+        {guide && (
           <div className="space-y-6">
-            <span className="text-xs font-mono font-bold tracking-widest text-purple-600 uppercase">Bilateral Transit Path</span>
-            <h2 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-none">Singaporean Commuters Guide</h2>
-            
-            <p className="text-slate-600 text-sm">
-              A bespoke guide for Singapore Citizens and Permanent Residents looking to leverage the Woodlands RTS Link to enjoy high-quality living at reduced living expenditures.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2 mt-6">RTS Link Commuter Metrics</h3>
-            <p className="text-slate-500 text-sm">
-              The Rapid Transit System (RTS) Link at Bukit Chagar connects directly to Woodlands North MRT Station in Singapore. With a travel duration of just 5 minutes, daily cross-border commuting is fully reliable, completely avoiding Causeways road congestion.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2">HDB Ownership Regulations</h3>
-            <p className="text-slate-500 text-sm">
-              Under Singapore's HDB regulations, owners of HDB flats must fully satisfy their 5-year Minimum Occupation Period (MOP) before they can legally acquire private properties abroad (including in Johor Bahru).
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2">Banking & Cross-Border Wealth</h3>
-            <p className="text-slate-500 text-sm">
-              Singapore Dollars (SGD) carry a dominant exchange rate premium against the Malaysian Ringgit (MYR). Major global banks offer custom mortgage facilities tailored for foreign income profiles under standard expat lending terms.
-            </p>
-          </div>
-        )}
-
-        {type === "foreigner-investor" && (
-          <div className="space-y-6">
-            <span className="text-xs font-mono font-bold tracking-widest text-amber-600 uppercase">Global Capital Path</span>
-            <h2 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-none">Foreign Investor Acquisition Portal</h2>
-            
-            <p className="text-slate-600 text-sm">
-              A specialized regulatory brief detailing acquisition policies for foreign nationals and international funds.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2 mt-6">Minimum Purchase Threshold (RM 1M Rule)</h3>
-            <p className="text-slate-500 text-sm">
-              Foreigners are legally permitted to acquire private residential assets in the state of Johor subject to a minimum purchase value threshold of **RM 1,000,000** for standard apartments (or RM 2,000,000 for landed estates in select areas).
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2">State Levy Approvals</h3>
-            <p className="text-slate-500 text-sm">
-              All property acquisitions by foreign buyers require official state consent, which incurs a standard state consent levy of 2% of the purchase price, to be fully settled prior to transaction closing.
-            </p>
-
-            <h3 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2">MM2H (Malaysia My Second Home)</h3>
-            <p className="text-slate-500 text-sm">
-              The prestigious MM2H visa program provides long-term 5 to 15-year residency passes for foreigners who meet specified financial deposits. MM2H holders enjoy streamlined property consent approvals and tax-friendly capital transfers.
-            </p>
+            <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">{txt(guide).label}</span>
+            <h1 className="font-sans text-3xl md:text-5xl font-semibold text-slate-900 tracking-tight leading-tight">{txt(guide).title}</h1>
+            <p className="text-slate-600 text-sm">{txt(guide).intro}</p>
+            {txt(guide).sections.map((s, i) => (
+              <div key={i}>
+                <h2 className="font-bold text-slate-900 text-lg border-b border-slate-100 pb-2 mt-6">{s.heading}</h2>
+                <p className="text-slate-600 text-sm mt-3">{s.body}</p>
+              </div>
+            ))}
+            <div className="pt-4 border-t border-slate-100 space-y-2">
+              <h2 className="font-bold text-slate-900 text-base">{zh ? "相关文章" : "Read next"}</h2>
+              <ul className="list-disc pl-5 text-sm space-y-1">
+                {guide.articles.map((slug) => {
+                  const post = blogPosts.find((b) => b.slug === slug);
+                  if (!post) return null;
+                  const t = getTranslatedBlog(post, language);
+                  return (
+                    <li key={slug}>
+                      <a href={localizePath(`/blog/${slug}`, pathLang)} onClick={(e) => { e.preventDefault(); navigateTo(`blog/${slug}`); }} className="text-blue-600 hover:underline font-semibold">{t.title}</a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <p className="text-xs text-slate-400">{zh ? UI_ZH.author : "Yee Woei Shyan (REN 46305), IQI Realty Sdn Bhd"}</p>
           </div>
         )}
       </div>
@@ -2182,10 +2106,10 @@ export default function App() {
             <Building2 className="h-96 w-96 text-white" />
           </div>
           <div className="relative z-10 max-w-2xl space-y-4">
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">Strategic Market Intelligence</span>
-            <h2 className="font-sans text-3xl md:text-5xl font-semibold tracking-tight leading-tight">Johor Bahru Property Insights Portal</h2>
+            <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">{isChinese(language) ? "指南" : "Guides"}</span>
+            <h2 className="font-sans text-3xl md:text-5xl font-semibold tracking-tight leading-tight">{isChinese(language) ? "新山置业指南" : "Johor Bahru buying guides"}</h2>
             <p className="text-slate-200 text-sm md:text-base leading-relaxed">
-              In-depth research reports, policy updates, and cross-border real estate guides for Singaporeans, local Malaysians, and international wealth advisory clients.
+              {isChinese(language) ? "写给新加坡和外国买家的新山置业指南：捷运、区域、规定、贷款和跨境生活。数字只来自发展商记录和实地测量。" : "Guides for Singapore and foreign buyers: the RTS Link, the areas, the rules, loans and cross-border living. Figures come only from developer records and measurements."}
             </p>
           </div>
         </div>
@@ -2227,7 +2151,7 @@ export default function App() {
           <div className="space-y-4">
             <h3 className="font-bold text-slate-900 text-lg tracking-tight flex items-center gap-2">
               <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-              <span>Editor's Featured Analysis</span>
+              <span>{isChinese(language) ? "精选" : "Featured guide"}</span>
             </h3>
             <div 
               onClick={() => navigateTo(`blog/${featuredPost.slug}`)}
@@ -2241,7 +2165,7 @@ export default function App() {
                   referrerPolicy="no-referrer"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
+                    e.currentTarget.src = "https://lh3.googleusercontent.com/d/1j18QOgL-Bha727OihaC5-58guduylh7g=w1200";
                   }}
                 />
               </div>
@@ -2304,7 +2228,7 @@ export default function App() {
                           referrerPolicy="no-referrer"
                           onError={(e) => {
                             e.currentTarget.onerror = null;
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
+                            e.currentTarget.src = "https://lh3.googleusercontent.com/d/1j18QOgL-Bha727OihaC5-58guduylh7g=w1200";
                           }}
                         />
                       </div>
@@ -2393,7 +2317,7 @@ export default function App() {
                     onClick={() => navigateTo(`area/${guide.slug}`)}
                     className="p-2 border border-slate-100 hover:border-blue-500 hover:bg-blue-50/20 text-slate-700 font-semibold rounded-xl text-center cursor-pointer transition-all truncate"
                   >
-                    {guide.name.split(" ")[0]}
+                    {getTranslatedArea(guide, language).name}
                   </button>
                 ))}
               </div>
@@ -2434,12 +2358,14 @@ export default function App() {
       "description": blog.summary,
       "image": blog.image,
       "datePublished": blog.date,
+      "dateModified": rawBlog.updated || blog.date,
       "author": {
         "@type": "Person",
-        "name": "RTS Premium Gateway",
-        "jobTitle": "Senior Cross-Border Property Analyst"
+        "name": "Yee Woei Shyan (REN 46305)",
+        "jobTitle": "Real estate negotiator, IQI Realty Sdn Bhd"
       }
     };
+    const zh = isChinese(language);
 
     return (
       <div className="mx-auto max-w-4xl px-6 py-12 md:px-8 font-sans space-y-10 text-left">
@@ -2452,7 +2378,7 @@ export default function App() {
         <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 border-b border-slate-100 pb-4">
           <button onClick={() => navigateTo("home")} className="hover:text-blue-600 cursor-pointer">Home</button>
           <span>&rsaquo;</span>
-          <button onClick={() => navigateTo("blog")} className="hover:text-blue-600 cursor-pointer">Blog Insights</button>
+          <button onClick={() => navigateTo("blog")} className="hover:text-blue-600 cursor-pointer">{zh ? "指南" : "Guides"}</button>
           <span>&rsaquo;</span>
           <span className="text-slate-800 truncate max-w-xs md:max-w-md">{blog.title}</span>
         </div>
@@ -2464,7 +2390,7 @@ export default function App() {
             className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-all flex items-center space-x-1.5"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Insights</span>
+            <span>{zh ? "返回指南" : "Back to guides"}</span>
           </button>
 
           <div className="space-y-4">
@@ -2479,15 +2405,15 @@ export default function App() {
           {/* Author metadata & specs */}
           <div className="flex flex-wrap items-center gap-6 pt-2 border-t border-b border-slate-100 py-4 text-xs">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-white text-xs">RTS</div>
+              <div className="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-white text-xs">YS</div>
               <div>
-                <span className="block font-semibold text-slate-800">RTS Editorial Team</span>
-                <span className="text-slate-400 text-[10px]">Senior Cross-Border Property Analyst</span>
+                <span className="block font-semibold text-slate-800">Yee Woei Shyan · REN 46305</span>
+                <span className="text-slate-400 text-[10px]">IQI Realty Sdn Bhd</span>
               </div>
             </div>
             <div className="flex items-center space-x-2 text-slate-400">
               <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-              <span>Published {blog.date}</span>
+              <span>{zh ? "发布" : "Published"} {blog.date}{rawBlog.updated ? ` · ${zh ? "更新" : "Updated"} ${zh ? UI_ZH.updated : rawBlog.updated}` : ""}</span>
             </div>
             <div className="flex items-center space-x-2 text-slate-400">
               <Info className="h-4 w-4 text-slate-400 shrink-0" />
@@ -2500,12 +2426,12 @@ export default function App() {
         <div className="h-[300px] md:h-[450px] rounded-3xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200/40 mb-6 md:mb-10">
           <img 
             src={blog.image} 
-            alt={blog.title} 
+            alt={rawBlog.imageAlt || blog.title} 
             className="w-full h-full object-cover" 
             referrerPolicy="no-referrer" 
             onError={(e) => {
               e.currentTarget.onerror = null;
-              e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
+              e.currentTarget.src = "https://lh3.googleusercontent.com/d/1j18QOgL-Bha727OihaC5-58guduylh7g=w1200";
             }}
           />
         </div>
@@ -2515,7 +2441,7 @@ export default function App() {
           {/* Main content body (8 cols) */}
           <div className="lg:col-span-9 max-w-none text-slate-700">
             {renderMarkdownContent(blog.content)}
-            <RelatedProjectsBox projects={projects} title="Projects mentioned in our guides — official listings on jbproperties.my" />
+            <RelatedProjectsBox slugs={rawBlog.relatedProjects || []} language={language} hant={hant} />
           </div>
 
           {/* Sticky social share and quick metrics (3 cols) */}
@@ -2554,7 +2480,7 @@ export default function App() {
             {/* Quick Agent Callout */}
             <div className="bg-slate-900 text-white p-5 rounded-2xl text-center space-y-3">
               <span className="h-2 w-2 rounded-full bg-emerald-400 inline-block animate-pulse mb-1" />
-              <h5 className="font-semibold text-xs text-slate-200">Got acquisition questions?</h5>
+              <h5 className="font-semibold text-xs text-slate-200">{zh ? "想问这些项目的事？" : "Questions about these projects?"}</h5>
               <a 
                 href="https://wa.me/60108278932?text=Hi,%20I%20just%20read%20your%20article%20on%20and%20want%20to%20consult%20buying."
                 target="_blank"
@@ -2596,7 +2522,7 @@ export default function App() {
 
         {/* Related Articles Section */}
         <div className="space-y-6 pt-6 border-t border-slate-100">
-          <h4 className="font-bold text-slate-900 text-lg">Recommended Research Reports</h4>
+          <h4 className="font-bold text-slate-900 text-lg">{zh ? "延伸阅读" : "Read next"}</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedArticles.map((rel) => (
               <div 
@@ -2611,7 +2537,7 @@ export default function App() {
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-103" 
                     onError={(e) => {
                       e.currentTarget.onerror = null;
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=800&q=80";
+                      e.currentTarget.src = "https://lh3.googleusercontent.com/d/1j18QOgL-Bha727OihaC5-58guduylh7g=w1200";
                     }}
                   />
                 </div>
@@ -2663,8 +2589,9 @@ export default function App() {
           currency={currency}
           setCurrency={setCurrency}
           language={language}
-          setLanguage={setLanguage}
+          setLanguage={changeLanguage}
         />
+        <HantText active={hant} />
 
         {/* Main Content viewport */}
         <main className="flex-1">

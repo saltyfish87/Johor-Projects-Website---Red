@@ -55,12 +55,22 @@ export const blogSeo = (post: BlogPost) => ({
   description: post.metaDescription || post.summary
 });
 
-export const areaSeo = (guide: AreaGuide) => ({
-  title: `${guide.name} Property Guide | RTS ${guide.rtsDistance}, Yields ${guide.averageYield}`,
-  description: `Guide to buying property in ${guide.name}, Johor Bahru: ${guide.rtsDistance} from the RTS Link, ${guide.ciqDistance} from CIQ, connectivity ${guide.connectivityScore}, average rental yield ${guide.averageYield}. ${guide.description.slice(0, 120)}`
-});
+export const areaSeo = (guide: AreaGuide, language = "EN") => language === "ZH"
+  ? { title: `${guide.name}：新山置业区域指南 | jbpropertyportal.my`, description: `${guide.where} ${guide.description.slice(0, 110)}` }
+  : { title: `${guide.name}: Johor Bahru Area Guide | jbpropertyportal.my`, description: `${guide.where} ${guide.description.slice(0, 130)}` };
 
-export const developerSeo = (dev: DeveloperProfile) => ({
-  title: `${dev.name} Johor Bahru Projects & Track Record | jbpropertyportal.my`,
-  description: `${dev.name} (established ${dev.established}): developer profile, awards and current Johor Bahru projects. ${dev.description.slice(0, 140)}`
-});
+export const developerSeo = (dev: DeveloperProfile, language = "EN") => language === "ZH"
+  ? { title: `${dev.name}在新山的挂牌项目 | jbpropertyportal.my`, description: dev.description.slice(0, 150) }
+  : { title: `${dev.name}: Johor Bahru Projects | jbpropertyportal.my`, description: dev.description.slice(0, 155) };
+
+/** Chinese titles for the fixed pages (used by /zh and /zh-hant) */
+export const HOME_SEO_ZH = {
+  title: "新山置业指南：区域、发展商、新柔捷运 | jbpropertyportal.my",
+  description: "给新加坡和外国买家的新山置业指南：新柔捷运、关卡附近的区域、外国人购屋规定、房贷、发展商记录，以及住新山在新加坡上班的实际安排。持牌房产经纪 Yee Woei Shyan（REN 46305，IQI Realty）编写。"
+};
+export const STATIC_SEO_ZH: Record<string, { title: string; description: string }> = {
+  projects: { title: "新山捷运附近的新楼盘 | jbpropertyportal.my", description: "新山捷运和关卡附近的新楼盘概览，完整资料、户型图和价格在 jbproperties.my。" },
+  compare: { title: "新山新楼盘并排比较 | jbpropertyportal.my", description: "并排比较新山新楼盘：价格、面积、离捷运站距离、地契和管理费。" },
+  "buying-guides": { title: "在新山买房：新加坡人与外国人指南 | jbpropertyportal.my", description: "新加坡人和外国买家在新山买房的分步指南：门槛价、州政府批准、印花税、贷款和捷运通勤。" },
+  blog: { title: "新山房产指南与市场文章 | jbpropertyportal.my", description: "为新加坡和外国买家写的新山房产文章：新柔捷运、关卡附近的区域、市场现况、贷款和跨境生活。" }
+};

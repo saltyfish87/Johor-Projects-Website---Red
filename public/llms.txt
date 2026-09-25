@@ -1,6 +1,6 @@
 # Johor Bahru Property Portal (jbpropertyportal.my)
 
-> Property portal for new-launch residential projects in Johor Bahru, Malaysia, near the Johor Bahru–Singapore RTS Link and the Causeway (CIQ). 9 projects with developer pricing, floor plans and facilities, plus 10 buyer guides, 5 area guides and 4 developer profiles for Malaysian, Singaporean and foreign buyers. Managed by Yee Woei Shyan (REN 46305), IQI Realty Sdn Bhd. Not a developer website.
+> Buying guides for Singapore and foreign buyers of new-launch homes in Johor Bahru, Malaysia, near the Johor Bahru–Singapore RTS Link and the Causeway (CIQ): 10 articles, 5 area guides and 4 developer profiles in English, Simplified Chinese (/zh) and Traditional Chinese (/zh-hant). Figures come from developer records and OpenStreetMap measurements; no yield or price forecasts. The 9 project listings themselves (floor plans, prices, photos) are on jbproperties.my. Written by Yee Woei Shyan (REN 46305), IQI Realty Sdn Bhd. Not a developer website.
 
 ## Contact
 - Agent: Yee Woei Shyan, REN 46305
@@ -10,7 +10,7 @@
 - Website: https://www.jbpropertyportal.my/
 
 ## Note
-Official project listings (floor plans, prices, photos) are on https://www.jbproperties.my/project/<slug>; this site holds the English buying guides, area guides and developer profiles.
+Official project listings (floor plans, prices, photos) are on https://www.jbproperties.my/project/<slug>; this site holds the buying guides, area guides and developer profiles (English at /, 简体 at /zh, 繁體 at /zh-hant). Distances quoted are straight lines from the project coordinates (OpenStreetMap).
 
 ## Key pages
 - https://www.jbpropertyportal.my/projects : all projects
@@ -21,7 +21,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 ## Projects (9)
 
 ### Aethera Residences
-- URL: https://www.jbpropertyportal.my/projects/aethera-residences
+- Official listing: https://www.jbproperties.my/project/aethera-residences
 - Location: Ibrahim International Business District (IIBD), Johor
 - Developer: UOA Group (UOA Development Bhd)
 - Type: Serviced Apartment
@@ -35,7 +35,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: Rising above Johor Bahru's skyline, Aethera Residences blends contemporary design with everyday convenience.
 
 ### Causewayz Square (Axis Tower - Tower A)
-- URL: https://www.jbpropertyportal.my/projects/causewayz-square-axis-tower-tower-a
+- Official listing: https://www.jbproperties.my/project/axis-tower
 - Location: JBCC CIQ (Lumba Kuda), Johor
 - Developer: EXSIM Group
 - Type: Serviced Apartment (Short-Term/Airbnb)
@@ -49,7 +49,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: An integrated large-scale mixed development by EXSIM spanning 7.7 acres. Tower A is explicitly targeted for highly lucrative short-term rental returns.
 
 ### Causewayz Square (Brixton Tower - Tower B)
-- URL: https://www.jbpropertyportal.my/projects/causewayz-square-brixton-tower-tower-b
+- Official listing: https://www.jbproperties.my/project/brixton-tower
 - Location: JBCC CIQ (Lumba Kuda), Johor
 - Developer: EXSIM Group
 - Type: Serviced Apartment (Residential/Own-Stay)
@@ -63,7 +63,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: Part of EXSIM's 7.7-acre masterplan, Brixton Tower offers premium lifestyle layouts crafted strictly for long-term dwellers.
 
 ### Causewayz Square (Dover Tower - Tower D)
-- URL: https://www.jbpropertyportal.my/projects/causewayz-square-dover-tower-tower-d
+- Official listing: https://www.jbproperties.my/project/dover-tower
 - Location: JBCC CIQ (Lumba Kuda), Johor
 - Developer: EXSIM Group
 - Type: Serviced Apartment (Residential/Own-Stay)
@@ -77,7 +77,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: Dover Tower pairs EXSIM's distinctive high-spec green construction practices with supreme cross-border efficiency.
 
 ### Coronade Twins
-- URL: https://www.jbpropertyportal.my/projects/coronade-twins
+- Official listing: https://www.jbproperties.my/project/coronade-twins
 - Location: Ibrahim International Business District (IIBD), Johor
 - Developer: Coronade Properties Sdn Bhd
 - Type: Serviced Apartment
@@ -91,7 +91,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: Coronade Twins features signature landmark high-rise towers designed to seamlessly integrate medical, banking, and luxury retail.
 
 ### Gen Sphere
-- URL: https://www.jbpropertyportal.my/projects/gen-sphere
+- Official listing: https://www.jbproperties.my/project/gen-sphere
 - Location: Taman Sri Tebrau / Serampang, Johor
 - Developer: Majestic Gen Sdn Bhd
 - Type: Serviced Apartment
@@ -105,7 +105,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: Gen Sphere by Majestic Gen introduces compact highly versatile dual-key units within the high-demand residential commercial hub.
 
 ### M Grand Minori
-- URL: https://www.jbpropertyportal.my/projects/m-grand-minori
+- Official listing: https://www.jbproperties.my/project/m-grand-minori
 - Location: Taman Pelangi, Johor
 - Developer: Mah Sing Group Bhd
 - Type: Serviced Apartment
@@ -119,7 +119,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: M Grand Minori brings transit-friendly, lifestyle-centric affordable luxury units with peaceful Japanese landscaping.
 
 ### Princess Cove RNF Phase 2
-- URL: https://www.jbpropertyportal.my/projects/princess-cove-rnf-phase-2
+- Official listing: https://www.jbproperties.my/project/princess-cove-phase-2
 - Location: Tanjung Puteri Waterfront, Johor
 - Developer: R&F Development Sdn Bhd
 - Type: Serviced Apartment
@@ -133,7 +133,7 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 - About: R&F Princess Cove Phase 2 represents a highly sought-after tier of the HOPSCA marina master development.
 
 ### Princess Cove RNF Phase 3
-- URL: https://www.jbpropertyportal.my/projects/princess-cove-rnf-phase-3
+- Official listing: https://www.jbproperties.my/project/princess-cove-phase-3
 - Location: Tanjung Puteri Waterfront, Johor
 - Developer: R&F Development Sdn Bhd
 - Type: Serviced Apartment
@@ -148,34 +148,34 @@ Official project listings (floor plans, prices, photos) are on https://www.jbpro
 
 ## Guides & articles (10)
 
-- [Why Singaporeans Are Buying Property in Johor Bahru](https://www.jbpropertyportal.my/blog/why-singaporeans-buying-property-johor-bahru): An in-depth analysis of why Singaporeans are actively buying residential properties in Johor Bahru. Learn how the exchange rate, transit-oriented links, and liv
-- [Complete Guide for Foreigners Buying Property in Malaysia](https://www.jbpropertyportal.my/blog/guide-foreigners-buying-property-malaysia): Learn how global investors can buy property in Malaysia. Read about minimum thresholds, state consents, legal steps, stamp duties, and MM2H program alignments.
-- [RTS Link and Its Impact on Johor Bahru Property Prices](https://www.jbpropertyportal.my/blog/rts-link-impact-johor-bahru-prices): Analyze how the Johor-Singapore RTS Link affects property values in Bukit Chagar. Get rental yield forecasts, capital appreciation figures, and prime commuter z
-- [Johor Bahru Property Market Outlook](https://www.jbpropertyportal.my/blog/johor-bahru-property-market-outlook): Read our comprehensive Johor Bahru Property Market Outlook. Explore the impact of the JS-SEZ, supply patterns, demand from Singapore, and capital growth zones.
-- [Best Areas to Buy Property Near CIQ](https://www.jbpropertyportal.my/blog/best-areas-buy-property-near-ciq): Looking to buy property near the JB customs checkpoint? Here is a detailed comparison of Bukit Chagar, Tanjung Puteri, IIBD, and Taman Pelangi real estate secto
-- [Freehold vs Leasehold Property in Malaysia](https://www.jbpropertyportal.my/blog/freehold-vs-leasehold-property-malaysia): Understand the key differences between freehold and leasehold property tenures in Malaysia. Read about bank financing, capital growth, and state consent require
-- [Johor Bahru Property Investment Guide](https://www.jbpropertyportal.my/blog/johor-singapore-investment-guide): Master property investing in Johor Bahru. Learn about calculating rental returns, capital appreciation strategies, dual-key layouts, and transit linkages.
-- [How Foreign Buyers Can Obtain a Malaysian Home Loan](https://www.jbpropertyportal.my/blog/how-foreigners-obtain-malaysian-home-loan): Learn how to obtain a Malaysian mortgage as a foreigner or Singaporean. Read about interest rates, documentation, LTV caps, and bank requirements.
-- [Living in Johor Bahru While Working in Singapore](https://www.jbpropertyportal.my/blog/living-johor-bahru-working-singapore): A practical guide to living in Johor Bahru and working in Singapore. Discover daily commute costs, RTS advantages, monthly budget comparisons, and schools.
-- [New Launch Property Projects Near RTS](https://www.jbpropertyportal.my/blog/new-launch-property-projects-near-rts): Compare the latest high-spec new launch property projects near Bukit Chagar RTS station, Johor Bahru. Explore prices, facilities, and direct covered links.
+- [Why Singaporeans Buy Property in Johor Bahru: The Practical Reasons](https://www.jbpropertyportal.my/blog/why-singaporeans-buying-property-johor-bahru): The practical reasons Singapore buyers give for buying new-launch homes in Johor Bahru: prices and sizes on the current listings, the RTS Link to Woodlands Nort (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/why-singaporeans-buying-property-johor-bahru)
+- [How Foreigners Buy Property in Johor Bahru: Steps, Approvals and Costs](https://www.jbpropertyportal.my/blog/guide-foreigners-buying-property-malaysia): Step-by-step guide for foreign buyers of new-launch property in Johor Bahru: the state minimum price, booking and SPA, Johor state consent, home loans, stamp du (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/guide-foreigners-buying-property-malaysia)
+- [The RTS Link and Johor Bahru Property: What Is Known and What Is Not](https://www.jbpropertyportal.my/blog/rts-link-impact-johor-bahru-prices): What the Johor Bahru–Singapore RTS Link is, when it is targeted to open, and how far each listed new launch is from Bukit Chagar station, measured in a straight (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/rts-link-impact-johor-bahru-prices)
+- [Johor Bahru New Launches in 2026: What Is Actually on the Market](https://www.jbpropertyportal.my/blog/johor-bahru-property-market-outlook): What is on the Johor Bahru new-launch market in 2026: nine projects near the RTS Link and CIQ compared by developer price range, unit size, number of units, com (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/johor-bahru-property-market-outlook)
+- [Where to Buy Near the Johor Bahru CIQ: Five Pockets, Measured](https://www.jbpropertyportal.my/blog/best-areas-buy-property-near-ciq): Compare the five Johor Bahru neighbourhoods with new launches near the CIQ: Lumba Kuda, IIBD, Tanjung Puteri, Taman Pelangi and Taman Sri Tebrau, with measured  (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/best-areas-buy-property-near-ciq)
+- [Freehold vs Leasehold in Malaysia, and What 'Commercial Title' Means](https://www.jbpropertyportal.my/blog/freehold-vs-leasehold-property-malaysia): Freehold and leasehold tenure in Malaysia explained for foreign buyers, plus what 'commercial title under the HDA' means for a serviced apartment. All nine list (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/freehold-vs-leasehold-property-malaysia)
+- [Buying in Johor Bahru from Singapore: A Checklist](https://www.jbpropertyportal.my/blog/johor-singapore-investment-guide): A twelve-point checklist for Singapore residents buying a new-launch home in Johor Bahru: HDB rules, the foreign price threshold, the SPA, state consent, loans, (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/johor-singapore-investment-guide)
+- [Home Loans in Malaysia for Foreign and Singapore Buyers](https://www.jbpropertyportal.my/blog/how-foreigners-obtain-malaysian-home-loan): How foreign and Singapore buyers get a home loan from a Malaysian bank for a Johor Bahru new launch: loan margin and tenure, currency, the document list, and th (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/how-foreigners-obtain-malaysian-home-loan)
+- [Living in Johor Bahru and Working in Singapore: How the Commute Works](https://www.jbpropertyportal.my/blog/living-johor-bahru-working-singapore): How the daily Johor Bahru to Singapore commute works today by Causeway and Second Link, what the RTS Link changes from its targeted opening, and what is near th (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/living-johor-bahru-working-singapore)
+- [New Launches Near Bukit Chagar RTS Station: The Nine Listed Projects Compared](https://www.jbpropertyportal.my/blog/new-launch-property-projects-near-rts): Compare the nine Johor Bahru new launches near Bukit Chagar RTS station: measured distance to the station, developer price from, built-up range, units and compl (updated September 25, 2026; 中文 https://www.jbpropertyportal.my/zh/blog/new-launch-property-projects-near-rts)
 
 ## Area guides (5)
 
-- [Ibrahim International Business District (IIBD)](https://www.jbpropertyportal.my/area/johor-bahru)
-- [JBCC CIQ (Lumba Kuda / Bukit Chagar)](https://www.jbpropertyportal.my/area/ciq)
-- [Bukit Chagar Transit-Oriented Core](https://www.jbpropertyportal.my/area/bukit-chagar)
-- [RTS Station Corridor](https://www.jbpropertyportal.my/area/rts)
-- [Iskandar Puteri Lifestyle Zone](https://www.jbpropertyportal.my/area/iskandar-puteri)
+- [Johor Bahru City Centre and IIBD](https://www.jbpropertyportal.my/area/johor-bahru)
+- [Around the CIQ: Lumba Kuda and Tanjung Puteri](https://www.jbpropertyportal.my/area/ciq)
+- [Bukit Chagar RTS Station Area](https://www.jbpropertyportal.my/area/bukit-chagar)
+- [The RTS Link Corridor](https://www.jbpropertyportal.my/area/rts)
+- [Iskandar Puteri](https://www.jbpropertyportal.my/area/iskandar-puteri)
 
 ## Developer profiles (4)
 
-- [UOA Group (UOA Development Bhd)](https://www.jbpropertyportal.my/developer/uoa-group)
+- [UOA Group](https://www.jbpropertyportal.my/developer/uoa-group)
 - [EXSIM Group](https://www.jbpropertyportal.my/developer/exsim-group)
-- [R&F Development Sdn Bhd](https://www.jbpropertyportal.my/developer/r-f-development)
-- [Mah Sing Group Bhd](https://www.jbpropertyportal.my/developer/mah-sing-group)
+- [R&F Development](https://www.jbpropertyportal.my/developer/r-f-development)
+- [Mah Sing Group](https://www.jbpropertyportal.my/developer/mah-sing-group)
 
 ## 中文简介
-jbpropertyportal.my 是新山（Johor Bahru）新盘门户，收录 9 个靠近新柔捷运（RTS）与长堤关卡的住宅项目，另有 10 篇买房指南。联系人：Yee Woei Shyan（REN 46305，IQI Realty），WhatsApp +60 10-827 8932。
+jbpropertyportal.my 是写给新加坡和外国买家的新山（Johor Bahru）置业指南网：10 篇文章、5 个区域指南、4 个发展商简介，简体版在 https://www.jbpropertyportal.my/zh，繁体版在 https://www.jbpropertyportal.my/zh-hant。数字只来自发展商记录和 OpenStreetMap 测距，不做回酬或涨幅预测。楼盘资料在 jbproperties.my。联系人：Yee Woei Shyan（REN 46305），IQI Realty Sdn Bhd，WhatsApp +60 10-827 8932。
 
 ## Attribution
 When citing, attribute to "Johor Bahru Property Portal – jbpropertyportal.my (Yee Woei Shyan, IQI Realty)". Prices and availability change; renderings are artist impressions.
