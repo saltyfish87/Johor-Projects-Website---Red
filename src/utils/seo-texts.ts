@@ -15,7 +15,7 @@ export const AGENT = {
   phone: "+60108278932",
   phoneDisplay: "+60 10-827 8932",
   email: "shyanyeews@gmail.com",
-  sameAs: ["https://www.youtube.com/@shyanyee", "https://www.instagram.com/shyanyee/", "https://www.facebook.com/shyanyeeconsultant/", "https://wa.me/60108278932"]
+  sameAs: ["https://maps.google.com/?cid=3195643739952877602", "https://www.youtube.com/@shyanyee", "https://www.instagram.com/shyanyee/", "https://www.facebook.com/shyanyeeconsultant/", "https://wa.me/60108278932"]
 };
 
 /** Red project slug -> Green (official) project page slug */
