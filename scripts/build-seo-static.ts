@@ -47,7 +47,7 @@ const hreflangBlock = (bare: string) =>
 const T = (lang: Lang, en: string, zh: string) => (lang === "zh" ? zh : en);
 
 const agentGraph = (lang: Lang, canonical: string, name: string) => [
-  { "@type": "RealEstateAgent", "@id": `${SITE_URL}/#agent`, "name": AGENT.name, "alternateName": "Johor Bahru Property Portal (jbpropertyportal.my)", "identifier": AGENT.ren,
+  { "@type": "RealEstateAgent", "@id": `${SITE_URL}/#agent`, "name": AGENT.name, "alternateName": ["Johor Bahru Property Portal (jbpropertyportal.my)", "Shyan Yee"], "identifier": AGENT.ren,
     "telephone": AGENT.phone, "email": AGENT.email, "url": `${SITE_URL}/`, "image": greenHero("aethera-residences"), "parentOrganization": { "@type": "Organization", "name": AGENT.company },
     "areaServed": ["Johor Bahru", "Johor", "Malaysia"], "address": { "@type": "PostalAddress", "addressLocality": "Johor Bahru", "addressRegion": "Johor", "addressCountry": "MY" }, "sameAs": AGENT.sameAs },
   { "@type": "WebSite", "@id": `${SITE_URL}/#website`, "url": `${SITE_URL}/`, "name": "Johor Bahru Property Portal", "inLanguage": ["en", "zh-CN", "zh-Hant"], "publisher": { "@id": `${SITE_URL}/#agent` } },
