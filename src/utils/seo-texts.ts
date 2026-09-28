@@ -39,7 +39,7 @@ export function greenProjectUrl(redSlug: string): string {
 
 export const HOME_SEO = {
   title: "Johor Bahru Property Guides, Areas & Developers | jbpropertyportal.my",
-  description: "Independent guides to buying property in Johor Bahru: RTS Link impact, best areas near CIQ, foreign buyer rules, home loans, developer track records and living-in-JB-working-in-Singapore advice. By licensed negotiator Yee Woei Shyan (REN 46305, IQI Realty).",
+  description: "Independent guides to buying property in Johor Bahru: RTS Link impact, best areas near CIQ, foreign buyer rules, home loans, developer track records and living-in-JB-working-in-Singapore advice.",
   keywords: "Johor Bahru property guide, RTS Link property, best area to buy in JB, buy property near CIQ, foreigner buy property Johor, Malaysian home loan for foreigners, Johor Bahru developer review, living in JB working in Singapore, Johor Bahru property market outlook, JB new launch near RTS"
 };
 
@@ -66,7 +66,7 @@ export const developerSeo = (dev: DeveloperProfile, language = "EN") => language
 /** Chinese titles for the fixed pages (used by /zh and /zh-hant) */
 export const HOME_SEO_ZH = {
   title: "新山置业指南：区域、发展商、新柔捷运 | jbpropertyportal.my",
-  description: "给新加坡和外国买家的新山置业指南：新柔捷运、关卡附近的区域、外国人购屋规定、房贷、发展商记录，以及住新山在新加坡上班的实际安排。持牌房产经纪 Yee Woei Shyan（REN 46305，IQI Realty）编写。"
+  description: "给新加坡和外国买家的新山置业指南：新柔捷运、关卡附近的区域、外国人购屋规定、房贷、发展商记录，以及住新山在新加坡上班的实际安排。"
 };
 export const STATIC_SEO_ZH: Record<string, { title: string; description: string }> = {
   projects: { title: "新山捷运附近的新楼盘 | jbpropertyportal.my", description: "新山捷运和关卡附近的新楼盘概览，完整资料、户型图和价格在 jbproperties.my。" },
